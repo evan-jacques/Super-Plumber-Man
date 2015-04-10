@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviour {
 	private int sectionbot;
 	GameObject[] sectionsbot;
 
+	private bool setUpNextArea = false;
+
 	// Use this for initialization
 	void Start () {
 		startbot = new Vector3 (0f, 0f, 0f);
@@ -33,7 +35,7 @@ public class GameManager : MonoBehaviour {
 
 	void Update () 
 	{
-		if (Input.GetButton ("Fire1")) 
+		if (setUpNextArea) 
 		{
 			sectionstop = GameObject.FindGameObjectsWithTag("sectiontop");
 			sectionsbot = GameObject.FindGameObjectsWithTag("sectionbot");
@@ -146,6 +148,7 @@ public class GameManager : MonoBehaviour {
 			float len = Random.Range (4, 13);
 			start = start + new Vector3 (len / 2, 0f, 0f);
 			GameObject p1 = (GameObject)Instantiate (platform, start, Quaternion.identity);
+			p1.layer = LayerMask.NameToLayer("Ground");
 			start = start + new Vector3 (len / 2, 0f, 0f);
 			p1.transform.localScale = new Vector3 (len, 1f, 0f);
 			p1.transform.parent = group.transform;
@@ -179,6 +182,7 @@ public class GameManager : MonoBehaviour {
 					for (int j = 0; j < spk; j++) 
 					{
 						GameObject spike = (GameObject)Instantiate (spikes, start, Quaternion.identity);
+						spike.layer = LayerMask.NameToLayer("Ground");
 						spike.transform.parent = group.transform;
 						if (j == spk - 1)
 							start = start + new Vector3 (0.5f, 0f, 0f);
@@ -192,6 +196,7 @@ public class GameManager : MonoBehaviour {
 					len = Random.Range (4, 13);
 					start = start + new Vector3 (len / 2, 0f, 0f);
 					GameObject p = (GameObject)Instantiate (platform, start, Quaternion.identity);
+					p.layer = LayerMask.NameToLayer("Ground");
 					start = start + new Vector3 (len / 2, 0f, 0f);
 					p.transform.localScale = new Vector3 (len, 1f, 0f);
 					p.transform.parent = group.transform;
@@ -224,6 +229,7 @@ public class GameManager : MonoBehaviour {
 			float len = Random.Range (4, 9);
 			start = start + new Vector3 (len / 2, 0f, 0f);
 			GameObject p1 = (GameObject)Instantiate (platform, start, Quaternion.identity);
+			p1.layer = LayerMask.NameToLayer("Ground");
 			start = start + new Vector3 (len / 2, 0f, 0f);
 			p1.transform.localScale = new Vector3 (len, 1f, 0f);
 			p1.transform.parent = group.transform;
@@ -258,6 +264,7 @@ public class GameManager : MonoBehaviour {
 					for (int j = 0; j < spk; j++) 
 					{
 						GameObject spike = (GameObject)Instantiate (spikes, start, Quaternion.identity);
+						spike.layer = LayerMask.NameToLayer("Ground");
 						spike.transform.parent = group.transform;
 						if (j == spk - 1)
 							start = start + new Vector3 (0.5f, 0f, 0f);
@@ -271,6 +278,7 @@ public class GameManager : MonoBehaviour {
 					len = Random.Range (4, 11);
 					start = start + new Vector3 (len / 2, 0f, 0f);
 					GameObject p = (GameObject)Instantiate (platform, start, Quaternion.identity);
+					p.layer = LayerMask.NameToLayer("Ground");
 					start = start + new Vector3 (len / 2, 0f, 0f);
 					p.transform.localScale = new Vector3 (len, 1f, 0f);
 					p.transform.parent = group.transform;
@@ -302,6 +310,7 @@ public class GameManager : MonoBehaviour {
 			float len = Random.Range (3, 7);
 			start = start + new Vector3 (len / 2, 0f, 0f);
 			GameObject p1 = (GameObject)Instantiate (platform, start, Quaternion.identity);
+			p1.layer = LayerMask.NameToLayer("Ground");
 			start = start + new Vector3 (len / 2, 0f, 0f);
 			p1.transform.localScale = new Vector3 (len, 1f, 0f);
 			p1.transform.parent = group.transform;
@@ -316,6 +325,7 @@ public class GameManager : MonoBehaviour {
 					start = start + new Vector3 (0.5f, 0f, 0f);
 					for (int j = 0; j < spk; j++) {
 						GameObject spike = (GameObject)Instantiate (spikes, start, Quaternion.identity);
+						spike.layer = LayerMask.NameToLayer("Ground");
 						spike.transform.parent = group.transform;
 						if (j == spk - 1)
 							start = start + new Vector3 (0.5f, 0f, 0f);
@@ -329,6 +339,7 @@ public class GameManager : MonoBehaviour {
 					len = Random.Range (2, 9);
 					start = start + new Vector3 (len / 2, 0f, 0f);
 					GameObject p = (GameObject)Instantiate (platform, start, Quaternion.identity);
+					p.layer = LayerMask.NameToLayer("Ground");
 					start = start + new Vector3 (len / 2, 0f, 0f);
 					p.transform.localScale = new Vector3 (len, 1f, 0f);
 					p.transform.parent = group.transform;
@@ -408,6 +419,7 @@ public class GameManager : MonoBehaviour {
 			float len = Random.Range (4, 13);
 			start = start + new Vector3 (len / 2, 0f, 0f);
 			GameObject p1 = (GameObject)Instantiate (platform, start, Quaternion.identity);
+			p1.layer = LayerMask.NameToLayer("Ground");
 			start = start + new Vector3 (len / 2, 0f, 0f);
 			p1.transform.localScale = new Vector3 (len, 1f, 0f);
 			p1.transform.parent = group.transform;
