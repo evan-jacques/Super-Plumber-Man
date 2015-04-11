@@ -4,28 +4,32 @@ using UnityEngine;
 using System.Collections;
 
 public class PlumberBehavior : MonoBehaviour {
-	
+
+	private int lives = 3;
+	private float invulnTime;
+
+	//Movement related
+	private float horizInput;
+	private float upInput;
+	private float jumpTime;
 	[HideInInspector] public bool facingRight = true;
 	[HideInInspector] public bool jumpVar = false;
 	public float moveForce = 365f;
 	public float maxSpeed = 10f;
 	public float jumpForce = 120f;
+	private bool grounded = false;
+
 	public Transform groundCheck1;
 	public Transform groundCheck2;
 	public Transform groundCheck3;
-	
-	private float horizInput;
-	private PlumberAI pai;
-
-	private bool grounded = false;
 	private Animator anim;
 	private Rigidbody2D rb2d;
 
-	private float jumpTime;
-
+	// AI related
+	private PlumberAI pai;
 	private bool moving = false;
-
 	private bool AIRunning;
+	private float lastInputTime = 0;
 
 	// Use this for initialization
 	void Awake () 
@@ -52,27 +56,55 @@ public class PlumberBehavior : MonoBehaviour {
 				moving = true;
 				anim.SetBool ("moving", true);
 		}
-
-		if (Input.GetKeyDown(KeyCode.UpArrow) && grounded)
-		{
-			stopAI ();
-			jumpVar = true;
-		}
 	}
-	
+
+	void OnTriggerEnter2D(Collider2D c)
+	{
+		PopupController puc = c.gameObject.GetComponent<PopupController>();
+		MovingEnemyController mec = c.gameObject.GetComponent<MovingEnemyController>();
+
+		if (mec != null) {
+			respawn ();
+		}
+		else if (puc != null) {
+			respawn ();
+		}
+
+	}
+
 	void FixedUpdate()
 	{
-		float h = Input.GetAxis("Horizontal");
+		if (lives == 0)
+			return;
+		if (transform.position.y < -10)
+			respawn ();
 
+		if (Time.time - lastInputTime > 5)
+			pai.activate ();
+
+		//Getting Inputs -----------------------------------------------------
+		float h = Input.GetAxis("Horizontal");
 		if (h != 0 && AIRunning) {
 			horizInput = h;
 			stopAI ();
 		} else if (!AIRunning) {
 			horizInput = h;
 		}
-		
-		//anim.SetFloat("Speed", Mathf.Abs(h));
+		if (Input.GetKey (KeyCode.UpArrow) && AIRunning) {
+			upInput = 1;
+			stopAI ();
+		} else if (!AIRunning) {
+			upInput = Input.GetKey (KeyCode.UpArrow)? 1 : 0;
+		}
+		if (upInput == 1 && grounded) {
+			if(AIRunning && Input.GetKey (KeyCode.UpArrow))
+			{
+				stopAI ();
+			}
+			jumpVar = true;
+		}
 
+		//Using Inputs ---------------------------------------------------------
 		if (horizInput * rb2d.velocity.x < maxSpeed)
 			rb2d.AddForce(Vector2.right * horizInput * moveForce);
 		
@@ -94,7 +126,7 @@ public class PlumberBehavior : MonoBehaviour {
 			jump();
 		}
 
-		if (Input.GetKey (KeyCode.UpArrow) && rb2d.velocity.y > 0 && Time.fixedTime - jumpTime < .3F) { //holding space while jumping
+		if (upInput == 1 && rb2d.velocity.y > 0 && Time.fixedTime - jumpTime < .3F) { //holding space while jumping
 			rb2d.AddForce(Vector2.up * jumpForce/30);
 		}
 	}
@@ -115,6 +147,16 @@ public class PlumberBehavior : MonoBehaviour {
 		transform.localScale = theScale;
 	}
 
+	public void setHorizInput(float input)
+	{
+		horizInput = input;
+	}
+
+	public void setUpInput(float input)
+	{
+		upInput = input;
+	}
+
 	private void startAI()
 	{
 		pai.activate ();
@@ -126,4 +168,56 @@ public class PlumberBehavior : MonoBehaviour {
 		pai.deactivate();
 		AIRunning = false;
 	}
+
+	void OnGUI()
+	{
+		Rect curInfo = new Rect (Screen.width / 2 - Screen.height / 10, Screen.height / 10, Screen.width / 5, Screen.height / 20);
+		Rect lostOrWon = new Rect (Screen.width / 2 - Screen.width / 16, Screen.height / 5, Screen.width / 8, Screen.height / 20);
+		GUI.Box (curInfo, "Current Active Lives : " + lives);
+		if (lives == 0)
+		{
+			GUI.Box (lostOrWon, "YOU HAVE LOST, SORRY");
+		}
+	}
+
+	private void respawn()
+	{
+		if (Time.time - invulnTime < 3)
+			return; //3 second invulnerability period
+		lives --;
+		invulnTime = Time.time;
+
+		RaycastHit2D hitDown= Physics2D.Linecast (transform.position + new Vector3(0, 0, 0), transform.position + new Vector3(0, -4, 0), 1 << LayerMask.NameToLayer("Ground"));
+		if (hitDown)
+			return;
+		RaycastHit2D hitUp = Physics2D.Linecast (transform.position + new Vector3(0, 0, 0), transform.position + new Vector3(0, 30, 0), 1 << LayerMask.NameToLayer("Ground"));
+		if (hitUp)
+		{
+			transform.position = hitUp.transform.position + new Vector3(0, 1, 0);
+		}
+
+		RaycastHit2D sideHitUp = Physics2D.Linecast (transform.position + new Vector3(-5, 0, 0), transform.position + new Vector3(-5, 30, 0), 1 << LayerMask.NameToLayer("Ground"));
+		if (sideHitUp)
+		{
+			transform.position = hitUp.transform.position + new Vector3(0, 1, 0);
+		}
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

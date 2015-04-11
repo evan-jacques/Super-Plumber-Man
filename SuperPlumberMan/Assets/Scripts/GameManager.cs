@@ -182,7 +182,6 @@ public class GameManager : MonoBehaviour {
 					for (int j = 0; j < spk; j++) 
 					{
 						GameObject spike = (GameObject)Instantiate (spikes, start, Quaternion.identity);
-						spike.layer = LayerMask.NameToLayer("Ground");
 						spike.transform.parent = group.transform;
 						if (j == spk - 1)
 							start = start + new Vector3 (0.5f, 0f, 0f);
@@ -264,7 +263,6 @@ public class GameManager : MonoBehaviour {
 					for (int j = 0; j < spk; j++) 
 					{
 						GameObject spike = (GameObject)Instantiate (spikes, start, Quaternion.identity);
-						spike.layer = LayerMask.NameToLayer("Ground");
 						spike.transform.parent = group.transform;
 						if (j == spk - 1)
 							start = start + new Vector3 (0.5f, 0f, 0f);
@@ -325,7 +323,6 @@ public class GameManager : MonoBehaviour {
 					start = start + new Vector3 (0.5f, 0f, 0f);
 					for (int j = 0; j < spk; j++) {
 						GameObject spike = (GameObject)Instantiate (spikes, start, Quaternion.identity);
-						spike.layer = LayerMask.NameToLayer("Ground");
 						spike.transform.parent = group.transform;
 						if (j == spk - 1)
 							start = start + new Vector3 (0.5f, 0f, 0f);
