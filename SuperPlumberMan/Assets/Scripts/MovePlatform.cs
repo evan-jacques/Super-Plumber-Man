@@ -59,9 +59,12 @@ public class MovePlatform : MonoBehaviour {
 			
 			direction = 1;
 		}
-		if (this.transform.position.y > 19f || this .transform.position.y < -19f)
+		if (this.transform.position.y > 44f || this .transform.position.y < -44f)
+		{
+			Debug.Log("HERE3");
 			direction = direction * -1;
-		this.transform.position = Vector3.MoveTowards(this.transform.position,new Vector3(this.transform.position.x,20f*direction,0f),speed*Time.deltaTime);
+		}
+		this.transform.position = Vector3.MoveTowards(this.transform.position,new Vector3(this.transform.position.x,45f*direction,0f),speed*Time.deltaTime);
 		
 		
 	}
