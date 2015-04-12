@@ -2,58 +2,85 @@
 using System.Collections;
 
 public class GameManager : MonoBehaviour {
-
+	
 	public GameObject spikes;
 	public GameObject platform;
 	public GameObject PopupEnemy;
 	public GameObject MovingEnemy;
+	public GameObject MovingPlatform;
 	public float speed;
 	private Vector3 starttop;
 	private Vector3 startbot;
+	private Vector3 startmid;
 	private int sectiontop;
+	private int sectionmid;
 	GameObject[] sectionstop;
+	GameObject[] sectionsmid;
 	private int sectionbot;
 	GameObject[] sectionsbot;
-
+	public GameObject player;
+	private float checkpoint;
 	private bool setUpNextArea = false;
-
+	
 	// Use this for initialization
 	void Start () {
-		startbot = new Vector3 (0f, 0f, 0f);
+		startbot = new Vector3 (0f, -25f, 0f);
 		starttop = new Vector3 (0f, 25f, 0f);
+		startmid = new Vector3 (0f, 0f, 0f);
+		Instantiate(player,new Vector3(2f,-24f,0f),Quaternion.identity);
 		sectiontop = 1;
 		sectionbot = 1;
+		sectionmid = 1;
 		//int level = 3;
 		//start = createPlatform (level,start,level);
 		starttop = createSectiontop (starttop,sectiontop);
 		startbot = createSectionbot (startbot,sectionbot);
-
+		startmid = createSectionmid (startmid, sectionmid);
+		float st = GameObject.FindGameObjectWithTag ("sectiontop").transform.GetChild (0).GetChild(0).position.x;
+		float end = GameObject.FindGameObjectWithTag ("sectiontop").transform.GetChild (29).GetChild(0).position.x;
+		checkpoint = ((end - st) * 0.5f) + st;
+		//Debug.Log (checkpoint);
+		//Debug.Log (GameObject.FindGameObjectWithTag("sectiontop").transform.childCount);
+		
 		
 		//start = createSection (start);
-
+		
 	}
-
+	
 	void Update () 
 	{
+		if(GameObject.FindGameObjectWithTag("Player").transform.position.x > checkpoint)
+			setUpNextArea = true;
 		if (setUpNextArea) 
 		{
+			//Debug.Log("HERE");
 			sectionstop = GameObject.FindGameObjectsWithTag("sectiontop");
 			sectionsbot = GameObject.FindGameObjectsWithTag("sectionbot");
-
+			sectionsmid = GameObject.FindGameObjectsWithTag("sectionmid");
+			
 			if(sectionstop.Length > 2)
 			{
 				Destroy(sectionstop[0]);
 				Destroy (sectionsbot[0]);
+				Destroy(sectionsmid[0]);
+				//Debug.Log (checkpoint + " inside");
+				
 			}
 			sectiontop++;
 			sectionbot++;
+			sectionmid++;
 			starttop = createSectiontop(starttop,sectiontop);
 			startbot = createSectionbot(startbot,sectionbot);
-
+			startmid = createSectionmid(startmid,sectionmid);
+			sectionstop = GameObject.FindGameObjectsWithTag("sectiontop");
+			checkpoint = sectionstop[1].transform.GetChild(0).GetChild(0).position.x + ((sectionstop[1].transform.GetChild (29).GetChild(0).position.x - sectionstop[1].transform.GetChild(0).GetChild(0).position.x)* 0.5f);
+			setUpNextArea = false;
+			
 			
 		}
+		//Debug.Log (checkpoint);
 	}
-
+	
 	Vector3 createSectiontop(Vector3 start, int sectionNumber)
 	{
 		GameObject section = new GameObject ();
@@ -62,19 +89,19 @@ public class GameManager : MonoBehaviour {
 		for (int i = 0; i < 30; i++) 
 		{
 			float height;
-			if(start.y < 20f)
+			if(start.y < 15f)
 			{
-				height = Random.Range (15 - start.y, 7);
+				height = Random.Range (10 - start.y, 6);
 			}
-			else if(start.y > 30f)
+			else if(start.y > 35f)
 			{
-				height = Random.Range (-5, 35 - start.y);
+				height = Random.Range (-5, 40 - start.y);
 			}
 			else
 			{
 				height = Random.Range (-5, 6);
 			}
-			float width = Random.Range (5, 10);
+			float width = Random.Range (7, 15);
 			int dist = Random.Range (0,100);
 			int level;
 			if (dist < Mathf.Log(sectionNumber,2) - 1)
@@ -102,19 +129,19 @@ public class GameManager : MonoBehaviour {
 		while(start.x < starttop.x)
 		{
 			float height;
-			if(start.y < -5f)
+			if(start.y < -35f)
 			{
-				height = Random.Range (-10 - start.y, 7);
+				height = Random.Range (-40 - start.y, 5);
 			}
-			else if(start.y > 5f)
+			else if(start.y > -15f)
 			{
-				height = Random.Range (-5, 10 - start.y);
+				height = Random.Range (-4, -10 - start.y);
 			}
 			else
 			{
 				height = Random.Range (-5, 6);
 			}
-			float width = Random.Range (3, 6);
+			float width = Random.Range (7, 15);
 			int dist = Random.Range (0,100);
 			int level;
 			if (dist < Mathf.Log(sectionNumber,2) - 1)
@@ -134,7 +161,26 @@ public class GameManager : MonoBehaviour {
 		}
 		return start;
 	}
-
+	
+	Vector3 createSectionmid(Vector3 start, int sectionNumber)
+	{
+		GameObject section = new GameObject ();
+		section.name = "" + sectionNumber;
+		section.tag = "sectionmid";
+		while(start.x < starttop.x)
+		{
+			float len = 5;
+			start = start + new Vector3 (len / 2, 0f, 0f);
+			GameObject p = (GameObject)Instantiate (MovingPlatform, start, Quaternion.identity);
+			p.layer = LayerMask.NameToLayer("Ground");
+			start = start + new Vector3 (len / 2, 0f, 0f);
+			p.transform.localScale = new Vector3 (len, 2f, 0f);
+			p.transform.parent = section.transform;
+			start = start + new Vector3(55f,0f,0f);
+		}
+		return start;
+	}
+	
 	Vector3 createPlatform(int level, Vector3 start, int name, GameObject section)
 	{
 		GameObject group = new GameObject ();
@@ -145,28 +191,28 @@ public class GameManager : MonoBehaviour {
 			int parts = Random.Range (1, 4);
 			if (parts % 2 == 1)
 				parts = parts - 1;
-			float len = Random.Range (4, 13);
+			float len = Random.Range (10, 40);
 			start = start + new Vector3 (len / 2, 0f, 0f);
 			GameObject p1 = (GameObject)Instantiate (platform, start, Quaternion.identity);
 			p1.layer = LayerMask.NameToLayer("Ground");
 			start = start + new Vector3 (len / 2, 0f, 0f);
-			p1.transform.localScale = new Vector3 (len, 1f, 0f);
+			p1.transform.localScale = new Vector3 (len, 2f, 0f);
 			p1.transform.parent = group.transform;
-			if (len > 9f) 
+			if (len > 25f) 
 			{
 				int chance = Random.Range (0, 100);
-				if (chance < len*2) 
+				if (chance < len*0.7) 
 				{
 					//p1.transform.FindChild("PointA").GetComponent<PointController>().create = true;
 					Vector3 put = p1.transform.FindChild("PointA").transform.position;
-					GameObject menemy = (GameObject)Instantiate(MovingEnemy,new Vector3(put.x + 1, put.y,put.z),Quaternion.identity);
+					GameObject menemy = (GameObject)Instantiate(MovingEnemy,new Vector3(put.x + 2, put.y,put.z),Quaternion.identity);
 					menemy.transform.parent = group.transform;
 					menemy.rigidbody2D.velocity = new Vector2(speed,0f);
 				}
-				else if (chance < len*4) 
+				else if (chance < len) 
 				{
 					float place = Random.Range(2f,len-1f);
-					GameObject enemy = (GameObject)Instantiate (PopupEnemy, new Vector3(start.x - place,start.y + 1f,start.z), Quaternion.identity);
+					GameObject enemy = (GameObject)Instantiate (PopupEnemy, new Vector3(start.x - place,start.y + 2f,start.z), Quaternion.identity);
 					enemy.transform.parent = group.transform;
 				}
 			}
@@ -178,28 +224,174 @@ public class GameManager : MonoBehaviour {
 				{
 					last = 1;
 					int spk = Random.Range (1, 6);
-					start = start + new Vector3 (0.5f, 0f, 0f);
+					start = start + new Vector3 (1f, 0f, 0f);
 					for (int j = 0; j < spk; j++) 
 					{
 						GameObject spike = (GameObject)Instantiate (spikes, start, Quaternion.identity);
+						spike.layer = LayerMask.NameToLayer("Ground");
 						spike.transform.parent = group.transform;
 						if (j == spk - 1)
-							start = start + new Vector3 (0.5f, 0f, 0f);
-						else
 							start = start + new Vector3 (1f, 0f, 0f);
-
+						else
+							start = start + new Vector3 (2f, 0f, 0f);
+						
 					}
 				} else 
 				{
 					last = 0;
-					len = Random.Range (4, 13);
+					len = Random.Range (10, 35);
 					start = start + new Vector3 (len / 2, 0f, 0f);
 					GameObject p = (GameObject)Instantiate (platform, start, Quaternion.identity);
 					p.layer = LayerMask.NameToLayer("Ground");
 					start = start + new Vector3 (len / 2, 0f, 0f);
-					p.transform.localScale = new Vector3 (len, 1f, 0f);
+					p.transform.localScale = new Vector3 (len, 2f, 0f);
 					p.transform.parent = group.transform;
-					if (len > 8f) 
+					if (len > 20f) 
+					{
+						int chance = Random.Range (0, 100);
+						if (chance < len*0.7) 
+						{
+							//p.transform.FindChild("PointA").GetComponent<PointController>().create = true;
+							Vector3 put = p.transform.FindChild("PointA").transform.position;
+							GameObject menemy = (GameObject)Instantiate(MovingEnemy,new Vector3(put.x + 1, put.y,put.z),Quaternion.identity);
+							menemy.transform.parent = group.transform;
+							menemy.rigidbody2D.velocity = new Vector2(speed,0f);
+						}
+						else if (chance < len) 
+						{
+							float place = Random.Range(2f,len-1f);
+							GameObject enemy = (GameObject)Instantiate (PopupEnemy, new Vector3(start.x - place,start.y + 2f,start.z), Quaternion.identity);
+							enemy.transform.parent = group.transform;
+						}
+					}
+				}
+				i++;
+			}
+		} else if (level == 2) 
+		{
+			int parts = Random.Range (3, 8);
+			if (parts % 2 == 1)
+				parts = parts - 1;
+			float len = Random.Range (10, 30);
+			start = start + new Vector3 (len / 2, 0f, 0f);
+			GameObject p1 = (GameObject)Instantiate (platform, start, Quaternion.identity);
+			p1.layer = LayerMask.NameToLayer("Ground");
+			start = start + new Vector3 (len / 2, 0f, 0f);
+			p1.transform.localScale = new Vector3 (len, 2f, 0f);
+			p1.transform.parent = group.transform;
+			if (len > 20f) 
+			{
+				int chance = Random.Range (0, 100);
+				if (chance < len) 
+				{
+					//p1.transform.FindChild("PointA").GetComponent<PointController>().create = true;
+					Vector3 put = p1.transform.FindChild("PointA").transform.position;
+					GameObject menemy = (GameObject)Instantiate(MovingEnemy,new Vector3(put.x + 1, put.y,put.z),Quaternion.identity);
+					menemy.transform.parent = group.transform;
+					menemy.rigidbody2D.velocity = new Vector2(speed,0f);
+					
+				}
+				else if (chance < len*1.5) 
+				{
+					float place = Random.Range(2f,len-1f);
+					GameObject enemy = (GameObject)Instantiate (PopupEnemy, new Vector3(start.x - place,start.y + 2f,start.z), Quaternion.identity);
+					enemy.transform.parent = group.transform;
+				}
+			}
+			int i = 0;
+			int last = 0;
+			while (i < parts) 
+			{
+				if (last == 0) 
+				{
+					last = 1;
+					int spk = Random.Range (3, 11);
+					start = start + new Vector3 (1f, 0f, 0f);
+					for (int j = 0; j < spk; j++) 
+					{
+						GameObject spike = (GameObject)Instantiate (spikes, start, Quaternion.identity);
+						spike.layer = LayerMask.NameToLayer("Ground");
+						spike.transform.parent = group.transform;
+						if (j == spk - 1)
+							start = start + new Vector3 (1f, 0f, 0f);
+						else
+							start = start + new Vector3 (2f, 0f, 0f);
+						
+					}
+				} else 
+				{
+					last = 0;
+					len = Random.Range (10, 25);
+					start = start + new Vector3 (len / 2, 0f, 0f);
+					GameObject p = (GameObject)Instantiate (platform, start, Quaternion.identity);
+					p.layer = LayerMask.NameToLayer("Ground");
+					start = start + new Vector3 (len / 2, 0f, 0f);
+					p.transform.localScale = new Vector3 (len, 2f, 0f);
+					p.transform.parent = group.transform;
+					if (len > 15f) 
+					{
+						int chance = Random.Range (0, 100);
+						if (chance < len*1.2) 
+						{
+							//p.transform.FindChild("PointA").GetComponent<PointController>().create = true;
+							Vector3 put = p.transform.FindChild("PointA").transform.position;
+							GameObject menemy = (GameObject)Instantiate(MovingEnemy,new Vector3(put.x + 1, put.y,put.z),Quaternion.identity);
+							menemy.transform.parent = group.transform;
+							menemy.rigidbody2D.velocity = new Vector2(speed,0f);
+						}
+						else if (chance < len*2) 
+						{
+							float place = Random.Range(2f,len-1f);
+							GameObject enemy = (GameObject)Instantiate (PopupEnemy, new Vector3(start.x - place,start.y + 2f,start.z), Quaternion.identity);
+							enemy.transform.parent = group.transform;						}
+					}
+				}
+				i++;
+			}
+		} else if (level == 3) 
+		{
+			int parts = Random.Range (5, 12);
+			if (parts % 2 == 1)
+				parts = parts - 1;
+			float len = Random.Range (8, 20);
+			start = start + new Vector3 (len / 2, 0f, 0f);
+			GameObject p1 = (GameObject)Instantiate (platform, start, Quaternion.identity);
+			p1.layer = LayerMask.NameToLayer("Ground");
+			start = start + new Vector3 (len / 2, 0f, 0f);
+			p1.transform.localScale = new Vector3 (len, 2f, 0f);
+			p1.transform.parent = group.transform;
+			int i = 0;
+			int last = 0;
+			while (i < parts) 
+			{
+				if (last == 0) 
+				{
+					last = 1;
+					int spk = Random.Range (5, 11);
+					start = start + new Vector3 (1f, 0f, 0f);
+					for (int j = 0; j < spk; j++) {
+						GameObject spike = (GameObject)Instantiate (spikes, start, Quaternion.identity);
+						spike.layer = LayerMask.NameToLayer("Ground");
+						spike.transform.parent = group.transform;
+						if (j == spk - 1)
+							start = start + new Vector3 (1f, 0f, 0f);
+						else
+							start = start + new Vector3 (2f, 0f, 0f);
+						
+					}
+				} else 
+				{
+					last = 0;
+					len = Random.Range (8, 20);
+					start = start + new Vector3 (len / 2, 0f, 0f);
+					GameObject p = (GameObject)Instantiate (platform, start, Quaternion.identity);
+					p.layer = LayerMask.NameToLayer("Ground");
+					start = start + new Vector3 (len / 2, 0f, 0f);
+					p.transform.localScale = new Vector3 (len, 2f, 0f);
+					p.transform.parent = group.transform;
+					float place = 0f;
+					float place2 = 0f;
+					if (len > 14f) 
 					{
 						int chance = Random.Range (0, 100);
 						if (chance < len*3) 
@@ -212,154 +404,11 @@ public class GameManager : MonoBehaviour {
 						}
 						else if (chance < len*5) 
 						{
-							float place = Random.Range(2f,len-1f);
-							GameObject enemy = (GameObject)Instantiate (PopupEnemy, new Vector3(start.x - place,start.y + 1f,start.z), Quaternion.identity);
-							enemy.transform.parent = group.transform;
-						}
-					}
-				}
-				i++;
-			}
-		} else if (level == 2) 
-		{
-			int parts = Random.Range (3, 8);
-			if (parts % 2 == 1)
-				parts = parts - 1;
-			float len = Random.Range (4, 9);
-			start = start + new Vector3 (len / 2, 0f, 0f);
-			GameObject p1 = (GameObject)Instantiate (platform, start, Quaternion.identity);
-			p1.layer = LayerMask.NameToLayer("Ground");
-			start = start + new Vector3 (len / 2, 0f, 0f);
-			p1.transform.localScale = new Vector3 (len, 1f, 0f);
-			p1.transform.parent = group.transform;
-			if (len > 9f) 
-			{
-				int chance = Random.Range (0, 100);
-				if (chance < len*4) 
-				{
-					//p1.transform.FindChild("PointA").GetComponent<PointController>().create = true;
-					Vector3 put = p1.transform.FindChild("PointA").transform.position;
-					GameObject menemy = (GameObject)Instantiate(MovingEnemy,new Vector3(put.x + 1, put.y,put.z),Quaternion.identity);
-					menemy.transform.parent = group.transform;
-					menemy.rigidbody2D.velocity = new Vector2(speed,0f);
-
-				}
-				else if (chance < len*6) 
-				{
-					float place = Random.Range(2f,len-1f);
-					GameObject enemy = (GameObject)Instantiate (PopupEnemy, new Vector3(start.x - place,start.y + 1f,start.z), Quaternion.identity);
-					enemy.transform.parent = group.transform;
-				}
-			}
-			int i = 0;
-			int last = 0;
-			while (i < parts) 
-			{
-				if (last == 0) 
-				{
-					last = 1;
-					int spk = Random.Range (3, 11);
-					start = start + new Vector3 (0.5f, 0f, 0f);
-					for (int j = 0; j < spk; j++) 
-					{
-						GameObject spike = (GameObject)Instantiate (spikes, start, Quaternion.identity);
-						spike.transform.parent = group.transform;
-						if (j == spk - 1)
-							start = start + new Vector3 (0.5f, 0f, 0f);
-						else
-							start = start + new Vector3 (1f, 0f, 0f);
-						
-					}
-				} else 
-				{
-					last = 0;
-					len = Random.Range (4, 11);
-					start = start + new Vector3 (len / 2, 0f, 0f);
-					GameObject p = (GameObject)Instantiate (platform, start, Quaternion.identity);
-					p.layer = LayerMask.NameToLayer("Ground");
-					start = start + new Vector3 (len / 2, 0f, 0f);
-					p.transform.localScale = new Vector3 (len, 1f, 0f);
-					p.transform.parent = group.transform;
-					if (len > 4f) 
-					{
-						int chance = Random.Range (0, 100);
-						if (chance < len*7) 
-						{
-							//p.transform.FindChild("PointA").GetComponent<PointController>().create = true;
-							Vector3 put = p.transform.FindChild("PointA").transform.position;
-							GameObject menemy = (GameObject)Instantiate(MovingEnemy,new Vector3(put.x + 1, put.y,put.z),Quaternion.identity);
-							menemy.transform.parent = group.transform;
-							menemy.rigidbody2D.velocity = new Vector2(speed,0f);
-						}
-						else if (chance < len*11) 
-						{
-							float place = Random.Range(2f,len-1f);
-							GameObject enemy = (GameObject)Instantiate (PopupEnemy, new Vector3(start.x - place,start.y + 1f,start.z), Quaternion.identity);
-							enemy.transform.parent = group.transform;						}
-					}
-				}
-				i++;
-			}
-		} else if (level == 3) 
-		{
-			int parts = Random.Range (5, 12);
-			if (parts % 2 == 1)
-				parts = parts - 1;
-			float len = Random.Range (3, 7);
-			start = start + new Vector3 (len / 2, 0f, 0f);
-			GameObject p1 = (GameObject)Instantiate (platform, start, Quaternion.identity);
-			p1.layer = LayerMask.NameToLayer("Ground");
-			start = start + new Vector3 (len / 2, 0f, 0f);
-			p1.transform.localScale = new Vector3 (len, 1f, 0f);
-			p1.transform.parent = group.transform;
-			int i = 0;
-			int last = 0;
-			while (i < parts) 
-			{
-				if (last == 0) 
-				{
-					last = 1;
-					int spk = Random.Range (5, 11);
-					start = start + new Vector3 (0.5f, 0f, 0f);
-					for (int j = 0; j < spk; j++) {
-						GameObject spike = (GameObject)Instantiate (spikes, start, Quaternion.identity);
-						spike.transform.parent = group.transform;
-						if (j == spk - 1)
-							start = start + new Vector3 (0.5f, 0f, 0f);
-						else
-							start = start + new Vector3 (1f, 0f, 0f);
-						
-					}
-				} else 
-				{
-					last = 0;
-					len = Random.Range (2, 9);
-					start = start + new Vector3 (len / 2, 0f, 0f);
-					GameObject p = (GameObject)Instantiate (platform, start, Quaternion.identity);
-					p.layer = LayerMask.NameToLayer("Ground");
-					start = start + new Vector3 (len / 2, 0f, 0f);
-					p.transform.localScale = new Vector3 (len, 1f, 0f);
-					p.transform.parent = group.transform;
-					float place = 0f;
-					float place2 = 0f;
-					if (len > 5f) 
-					{
-						int chance = Random.Range (0, 100);
-						if (chance < len*6) 
-						{
-							//p.transform.FindChild("PointA").GetComponent<PointController>().create = true;
-							Vector3 put = p.transform.FindChild("PointA").transform.position;
-							GameObject menemy = (GameObject)Instantiate(MovingEnemy,new Vector3(put.x + 1, put.y,put.z),Quaternion.identity);
-							menemy.transform.parent = group.transform;
-							menemy.rigidbody2D.velocity = new Vector2(speed,0f);
-						}
-						else if (chance < len*15) 
-						{
 							place = Random.Range(2f,len-1f);
-							GameObject enemy = (GameObject)Instantiate (PopupEnemy, new Vector3(start.x - place,start.y + 1f,start.z), Quaternion.identity);
+							GameObject enemy = (GameObject)Instantiate (PopupEnemy, new Vector3(start.x - place,start.y + 2f,start.z), Quaternion.identity);
 							enemy.transform.parent = group.transform;						}
 						chance = Random.Range (0, 100);
-						if (chance < len*5) 
+						if (chance < len*4) 
 						{
 							if(place > len/2f)
 							{
@@ -377,35 +426,35 @@ public class GameManager : MonoBehaviour {
 								menemy2.transform.parent = group.transform;
 								menemy2.rigidbody2D.velocity = new Vector2(speed,0f);
 							}
-
-
+							
+							
 						}
-						else if (chance < len*7) 
+						else if (chance < len*4) 
 						{
 							place2 = Random.Range(len/2f,len-1f);
 							if(place == 0)
 							{
-								GameObject enemy2 = (GameObject)Instantiate (PopupEnemy, new Vector3(start.x - place2,start.y + 1f,start.z), Quaternion.identity);
+								GameObject enemy2 = (GameObject)Instantiate (PopupEnemy, new Vector3(start.x - place2,start.y + 2f,start.z), Quaternion.identity);
 								enemy2.transform.parent = group.transform;
 							}
 						}
 					}
-					else if (len > 2f) 
+					else if (len > 9f) 
 					{
 						int chance = Random.Range (0, 100);
-						if (chance < len*8) 
+						if (chance < len*3) 
 						{
 							//p.transform.FindChild("PointA").GetComponent<PointController>().create = true;
 							Vector3 put = p.transform.FindChild("PointA").transform.position;
 							GameObject menemy = (GameObject)Instantiate(MovingEnemy,new Vector3(put.x + 1, put.y,put.z),Quaternion.identity);
 							menemy.transform.parent = group.transform;
 							menemy.rigidbody2D.velocity = new Vector2(speed,0f);
-
+							
 						}
-						else if (chance < len*15) 
+						else if (chance < len*7) 
 						{
 							place = Random.Range(2f,len-1f);
-							GameObject enemy = (GameObject)Instantiate (PopupEnemy, new Vector3(start.x - place,start.y + 1f,start.z), Quaternion.identity);
+							GameObject enemy = (GameObject)Instantiate (PopupEnemy, new Vector3(start.x - place,start.y + 2f,start.z), Quaternion.identity);
 							enemy.transform.parent = group.transform;						}
 					}
 				}
@@ -413,12 +462,12 @@ public class GameManager : MonoBehaviour {
 			}
 		} else if (level == 0) 
 		{
-			float len = Random.Range (4, 13);
+			float len = Random.Range (10, 25);
 			start = start + new Vector3 (len / 2, 0f, 0f);
 			GameObject p1 = (GameObject)Instantiate (platform, start, Quaternion.identity);
 			p1.layer = LayerMask.NameToLayer("Ground");
 			start = start + new Vector3 (len / 2, 0f, 0f);
-			p1.transform.localScale = new Vector3 (len, 1f, 0f);
+			p1.transform.localScale = new Vector3 (len, 2f, 0f);
 			p1.transform.parent = group.transform;
 		}
 		return start;

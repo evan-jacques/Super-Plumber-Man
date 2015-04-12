@@ -15,7 +15,7 @@ public class PopupController : MonoBehaviour {
 	void Update () {
 		if(move > 0)
 		{
-			this.transform.position = Vector3.MoveTowards(this.transform.position, new Vector3(this.transform.parent.position.x,this.transform.parent.position.y + 1, this.transform.parent.position.z), speed*Time.deltaTime);
+			this.transform.position = Vector3.MoveTowards(this.transform.position, new Vector3(this.transform.parent.position.x,this.transform.parent.position.y + 2, this.transform.parent.position.z), speed*Time.deltaTime);
 		}
 		else
 		{
@@ -26,5 +26,12 @@ public class PopupController : MonoBehaviour {
 			move = move*-1;
 		}
 		time = time + Time.deltaTime;
+	}
+	void OnTriggerEnter2D(Collider2D other)
+	{
+		if (other.tag == "Player") 
+		{
+			Destroy(other.gameObject);
+		}
 	}
 }
