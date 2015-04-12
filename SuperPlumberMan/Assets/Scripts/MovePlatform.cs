@@ -34,7 +34,7 @@ public class MovePlatform : MonoBehaviour {
 		RaycastHit2D hitup = Physics2D.Raycast (new Vector2 (this.transform.position.x, this.transform.position.y), new Vector2 (0f, 1f), 7f,mask);
 		RaycastHit2D hitdown = Physics2D.Raycast (new Vector2 (this.transform.position.x, this.transform.position.y), new Vector2 (0f, 1f), 7f,mask);
 		
-		Debug.Log (hitup.transform.tag);
+		//Debug.Log (hitup.transform.tag);
 		if(hitup.transform.tag == "blocking")
 		{
 			Debug.Log("Here");

@@ -7,15 +7,15 @@ public class MovingEnemyController : MonoBehaviour {
 	void Start () {
 		//this.rigidbody2D.velocity = new Vector2 (1f, 0f);
 	}
-	void OnTriggerEnter2D(Collider2D other)
-	{
-		if (other.tag == "Enemy") 
-		{
-			this.rigidbody2D.velocity = new Vector2(-this.rigidbody2D.velocity.x,this.rigidbody2D.velocity.y);
-		}
-		if (other.tag == "Player") 
-		{
-			Destroy(other.gameObject);
-		}
-	}
+//	void OnTriggerEnter2D(Collider2D other)
+//	{
+//		if (other.tag == "Enemy") 
+//		{
+//			this.rigidbody2D.velocity = new Vector2(-this.rigidbody2D.velocity.x,this.rigidbody2D.velocity.y);
+//		}
+//		if (other.tag == "Player") 
+//		{
+//			Destroy(other.gameObject);
+//		}
+//	}
 }

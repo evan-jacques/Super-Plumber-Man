@@ -27,11 +27,11 @@ public class PopupController : MonoBehaviour {
 		}
 		time = time + Time.deltaTime;
 	}
-	void OnTriggerEnter2D(Collider2D other)
-	{
-		if (other.tag == "Player") 
-		{
-			Destroy(other.gameObject);
-		}
-	}
+//	void OnTriggerEnter2D(Collider2D other)
+//	{
+//		if (other.tag == "Player") 
+//		{
+//			Destroy(other.gameObject);
+//		}
+//	}
 }

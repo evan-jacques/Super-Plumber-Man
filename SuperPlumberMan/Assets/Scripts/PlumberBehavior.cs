@@ -18,6 +18,7 @@ public class PlumberBehavior : MonoBehaviour {
 	public float maxSpeed = 10f;
 	public float jumpForce = 120f;
 	private bool grounded = false;
+	private GameObject mostRecentPlatform = null;
 
 	public Transform groundCheck1;
 	public Transform groundCheck2;
@@ -76,7 +77,7 @@ public class PlumberBehavior : MonoBehaviour {
 	{
 		if (lives == 0)
 			return;
-		if (transform.position.y < -10)
+		if (transform.position.y < -55)
 			respawn ();
 
 		if (Time.time - lastInputTime > 5)
@@ -123,6 +124,7 @@ public class PlumberBehavior : MonoBehaviour {
 		
 		if (jumpVar)
 		{
+			mostRecentPlatform = currentPlatform();
 			jump();
 		}
 
@@ -145,6 +147,21 @@ public class PlumberBehavior : MonoBehaviour {
 		Vector3 theScale = transform.localScale;
 		theScale.x *= -1;
 		transform.localScale = theScale;
+	}
+
+	GameObject currentPlatform()
+	{
+
+		GameObject p1 = Physics2D.Linecast (transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer ("Ground")).collider.gameObject;
+		GameObject p2 = Physics2D.Linecast (transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer ("Ground")).collider.gameObject;
+		GameObject p3 = Physics2D.Linecast (transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer ("Ground")).collider.gameObject;
+		if (p1 != null)
+			return p1;
+		if (p2 != null)
+			return p2;
+		if (p3 != null)
+			return p3;
+		return null;
 	}
 
 	public void setHorizInput(float input)
@@ -173,7 +190,7 @@ public class PlumberBehavior : MonoBehaviour {
 	{
 		Rect curInfo = new Rect (Screen.width / 2 - Screen.height / 10, Screen.height / 10, Screen.width / 5, Screen.height / 20);
 		Rect lostOrWon = new Rect (Screen.width / 2 - Screen.width / 16, Screen.height / 5, Screen.width / 8, Screen.height / 20);
-		GUI.Box (curInfo, "Current Active Lives : " + lives);
+		GUI.Box (curInfo, "Current Lives : " + lives);
 		if (lives == 0)
 		{
 			GUI.Box (lostOrWon, "YOU HAVE LOST, SORRY");
@@ -190,17 +207,19 @@ public class PlumberBehavior : MonoBehaviour {
 		RaycastHit2D hitDown= Physics2D.Linecast (transform.position + new Vector3(0, 0, 0), transform.position + new Vector3(0, -4, 0), 1 << LayerMask.NameToLayer("Ground"));
 		if (hitDown)
 			return;
-		RaycastHit2D hitUp = Physics2D.Linecast (transform.position + new Vector3(0, 0, 0), transform.position + new Vector3(0, 30, 0), 1 << LayerMask.NameToLayer("Ground"));
+		RaycastHit2D hitUp = Physics2D.Linecast (transform.position + new Vector3(0, 0, 0), transform.position + new Vector3(0, 40, 0), 1 << LayerMask.NameToLayer("Ground"));
 		if (hitUp)
 		{
 			transform.position = hitUp.transform.position + new Vector3(0, 1, 0);
 		}
 
-		RaycastHit2D sideHitUp = Physics2D.Linecast (transform.position + new Vector3(-5, 0, 0), transform.position + new Vector3(-5, 30, 0), 1 << LayerMask.NameToLayer("Ground"));
+		RaycastHit2D sideHitUp = Physics2D.Linecast (transform.position + new Vector3(-5, 0, 0), transform.position + new Vector3(-5, 40, 0), 1 << LayerMask.NameToLayer("Ground"));
 		if (sideHitUp)
 		{
 			transform.position = hitUp.transform.position + new Vector3(0, 1, 0);
 		}
+
+		transform.position = mostRecentPlatform.transform.position + new Vector3 (0, 1, 0);
 	}
 }
 

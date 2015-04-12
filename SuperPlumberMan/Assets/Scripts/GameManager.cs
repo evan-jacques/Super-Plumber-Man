@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour {
 	
@@ -21,9 +22,11 @@ public class GameManager : MonoBehaviour {
 	public GameObject player;
 	private float checkpoint;
 	private bool setUpNextArea = false;
-	
+	public List<GameObject> enemies;
+
 	// Use this for initialization
 	void Start () {
+		enemies = new List<GameObject> ();
 		startbot = new Vector3 (0f, -25f, 0f);
 		starttop = new Vector3 (0f, 25f, 0f);
 		startmid = new Vector3 (0f, 0f, 0f);
@@ -60,6 +63,7 @@ public class GameManager : MonoBehaviour {
 			
 			if(sectionstop.Length > 2)
 			{
+				enemies = new List<GameObject>();
 				Destroy(sectionstop[0]);
 				Destroy (sectionsbot[0]);
 				Destroy(sectionsmid[0]);
@@ -208,12 +212,14 @@ public class GameManager : MonoBehaviour {
 					GameObject menemy = (GameObject)Instantiate(MovingEnemy,new Vector3(put.x + 2, put.y,put.z),Quaternion.identity);
 					menemy.transform.parent = group.transform;
 					menemy.rigidbody2D.velocity = new Vector2(speed,0f);
+					enemies.Add(menemy);
 				}
 				else if (chance < len) 
 				{
 					float place = Random.Range(2f,len-1f);
 					GameObject enemy = (GameObject)Instantiate (PopupEnemy, new Vector3(start.x - place,start.y + 2f,start.z), Quaternion.identity);
 					enemy.transform.parent = group.transform;
+					enemies.Add(enemy);
 				}
 			}
 			int i = 0;
@@ -223,12 +229,11 @@ public class GameManager : MonoBehaviour {
 				if (last == 0) 
 				{
 					last = 1;
-					int spk = Random.Range (1, 6);
+					int spk = Random.Range (2, 6);
 					start = start + new Vector3 (1f, 0f, 0f);
 					for (int j = 0; j < spk; j++) 
 					{
 						GameObject spike = (GameObject)Instantiate (spikes, start, Quaternion.identity);
-						spike.layer = LayerMask.NameToLayer("Ground");
 						spike.transform.parent = group.transform;
 						if (j == spk - 1)
 							start = start + new Vector3 (1f, 0f, 0f);
@@ -256,12 +261,14 @@ public class GameManager : MonoBehaviour {
 							GameObject menemy = (GameObject)Instantiate(MovingEnemy,new Vector3(put.x + 1, put.y,put.z),Quaternion.identity);
 							menemy.transform.parent = group.transform;
 							menemy.rigidbody2D.velocity = new Vector2(speed,0f);
+							enemies.Add(menemy);
 						}
 						else if (chance < len) 
 						{
 							float place = Random.Range(2f,len-1f);
 							GameObject enemy = (GameObject)Instantiate (PopupEnemy, new Vector3(start.x - place,start.y + 2f,start.z), Quaternion.identity);
 							enemy.transform.parent = group.transform;
+							enemies.Add(enemy);
 						}
 					}
 				}
@@ -289,13 +296,14 @@ public class GameManager : MonoBehaviour {
 					GameObject menemy = (GameObject)Instantiate(MovingEnemy,new Vector3(put.x + 1, put.y,put.z),Quaternion.identity);
 					menemy.transform.parent = group.transform;
 					menemy.rigidbody2D.velocity = new Vector2(speed,0f);
-					
+					enemies.Add(menemy);
 				}
 				else if (chance < len*1.5) 
 				{
 					float place = Random.Range(2f,len-1f);
 					GameObject enemy = (GameObject)Instantiate (PopupEnemy, new Vector3(start.x - place,start.y + 2f,start.z), Quaternion.identity);
 					enemy.transform.parent = group.transform;
+					enemies.Add(enemy);
 				}
 			}
 			int i = 0;
@@ -310,7 +318,6 @@ public class GameManager : MonoBehaviour {
 					for (int j = 0; j < spk; j++) 
 					{
 						GameObject spike = (GameObject)Instantiate (spikes, start, Quaternion.identity);
-						spike.layer = LayerMask.NameToLayer("Ground");
 						spike.transform.parent = group.transform;
 						if (j == spk - 1)
 							start = start + new Vector3 (1f, 0f, 0f);
@@ -338,12 +345,15 @@ public class GameManager : MonoBehaviour {
 							GameObject menemy = (GameObject)Instantiate(MovingEnemy,new Vector3(put.x + 1, put.y,put.z),Quaternion.identity);
 							menemy.transform.parent = group.transform;
 							menemy.rigidbody2D.velocity = new Vector2(speed,0f);
+							enemies.Add(menemy);
 						}
 						else if (chance < len*2) 
 						{
 							float place = Random.Range(2f,len-1f);
 							GameObject enemy = (GameObject)Instantiate (PopupEnemy, new Vector3(start.x - place,start.y + 2f,start.z), Quaternion.identity);
-							enemy.transform.parent = group.transform;						}
+							enemy.transform.parent = group.transform;	
+							enemies.Add(enemy);
+						}
 					}
 				}
 				i++;
@@ -371,7 +381,6 @@ public class GameManager : MonoBehaviour {
 					start = start + new Vector3 (1f, 0f, 0f);
 					for (int j = 0; j < spk; j++) {
 						GameObject spike = (GameObject)Instantiate (spikes, start, Quaternion.identity);
-						spike.layer = LayerMask.NameToLayer("Ground");
 						spike.transform.parent = group.transform;
 						if (j == spk - 1)
 							start = start + new Vector3 (1f, 0f, 0f);
@@ -401,12 +410,15 @@ public class GameManager : MonoBehaviour {
 							GameObject menemy = (GameObject)Instantiate(MovingEnemy,new Vector3(put.x + 1, put.y,put.z),Quaternion.identity);
 							menemy.transform.parent = group.transform;
 							menemy.rigidbody2D.velocity = new Vector2(speed,0f);
+							enemies.Add(menemy);
 						}
 						else if (chance < len*5) 
 						{
 							place = Random.Range(2f,len-1f);
 							GameObject enemy = (GameObject)Instantiate (PopupEnemy, new Vector3(start.x - place,start.y + 2f,start.z), Quaternion.identity);
-							enemy.transform.parent = group.transform;						}
+							enemy.transform.parent = group.transform;			
+							enemies.Add(enemy);
+						}
 						chance = Random.Range (0, 100);
 						if (chance < len*4) 
 						{
@@ -417,6 +429,7 @@ public class GameManager : MonoBehaviour {
 								GameObject menemy2 = (GameObject)Instantiate(MovingEnemy,new Vector3(put2.x + 1, put2.y,put2.z),Quaternion.identity);
 								menemy2.transform.parent = group.transform;
 								menemy2.rigidbody2D.velocity = new Vector2(speed,0f);
+								enemies.Add(menemy2);
 							}
 							else
 							{
@@ -425,6 +438,7 @@ public class GameManager : MonoBehaviour {
 								GameObject menemy2 = (GameObject)Instantiate(MovingEnemy,new Vector3(put2.x + 1, put2.y,put2.z),Quaternion.identity);
 								menemy2.transform.parent = group.transform;
 								menemy2.rigidbody2D.velocity = new Vector2(speed,0f);
+								enemies.Add(menemy2);
 							}
 							
 							
@@ -449,13 +463,15 @@ public class GameManager : MonoBehaviour {
 							GameObject menemy = (GameObject)Instantiate(MovingEnemy,new Vector3(put.x + 1, put.y,put.z),Quaternion.identity);
 							menemy.transform.parent = group.transform;
 							menemy.rigidbody2D.velocity = new Vector2(speed,0f);
-							
+							enemies.Add(menemy);
 						}
 						else if (chance < len*7) 
 						{
 							place = Random.Range(2f,len-1f);
 							GameObject enemy = (GameObject)Instantiate (PopupEnemy, new Vector3(start.x - place,start.y + 2f,start.z), Quaternion.identity);
-							enemy.transform.parent = group.transform;						}
+							enemy.transform.parent = group.transform;
+							enemies.Add(enemy);
+						}
 					}
 				}
 				i++;
