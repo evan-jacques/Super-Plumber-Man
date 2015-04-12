@@ -28,9 +28,9 @@ public class MovingEnemyController : MonoBehaviour {
 		{
 			this.rigidbody2D.velocity = new Vector2(-speed,0f);
 		}
-		if (other.tag == "Player") 
-		{
-			Destroy(other.gameObject);
-		}
+//		if (other.tag == "Player") 
+//		{
+//			Destroy(other.gameObject);
+//		}
 	}
 }

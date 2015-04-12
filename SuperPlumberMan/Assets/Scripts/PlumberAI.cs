@@ -92,7 +92,16 @@ public class PlumberAI : MonoBehaviour {
 			}
 			else //otherwise we stop
 			{
-				pb.setHorizInput(0.0F);
+				float dist = (avoidingMover.transform.position - transform.position).magnitude;
+				if(dist < 4)
+				{
+					pb.setHorizInput(0.0F);
+				}
+				else
+				{
+					pb.setHorizInput(1.0F);
+				}
+
 			}
 			return;
 		}

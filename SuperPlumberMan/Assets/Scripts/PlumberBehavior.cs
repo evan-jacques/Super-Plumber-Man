@@ -75,7 +75,7 @@ public class PlumberBehavior : MonoBehaviour {
 
 	void FixedUpdate()
 	{
-		if (lives == 0)
+		if (lives <= 0)
 			return;
 		if (transform.position.y < -55)
 			respawn ();
@@ -128,7 +128,7 @@ public class PlumberBehavior : MonoBehaviour {
 			jump();
 		}
 
-		if (upInput == 1 && rb2d.velocity.y > 0 && Time.fixedTime - jumpTime < .3F) { //holding space while jumping
+		if (upInput == 1 && rb2d.velocity.y > 0 && Time.fixedTime - jumpTime < .4F) { //holding space while jumping
 			rb2d.AddForce(Vector2.up * jumpForce/30);
 		}
 	}
