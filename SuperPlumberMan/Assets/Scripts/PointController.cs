@@ -8,10 +8,10 @@ public class PointController : MonoBehaviour {
 	public float speed;
 	// Use this for initialization
 	void Start () {
-		if (this.name == "PointA")
-			otherp = this.transform.parent.FindChild ("PointB").transform.position;
-		else
-			otherp = this.transform.parent.FindChild ("PointA").transform.position;
+		//if (this.name == "PointA")
+		//	otherp = this.transform.parent.FindChild ("PointB").transform.position;
+		//else
+		//	otherp = this.transform.parent.FindChild ("PointA").transform.position;
 	}
 
 	// Update is called once per frame
@@ -26,7 +26,7 @@ public class PointController : MonoBehaviour {
 			create = false;
 		}
 	}*/
-	void OnTriggerEnter2D(Collider2D other)
+	/*void OnTriggerEnter2D(Collider2D other)
 	{
 		if (other.tag == "Enemy") 
 		{
@@ -35,6 +35,6 @@ public class PointController : MonoBehaviour {
 			else
 				other.rigidbody2D.velocity = new Vector2(speed,0f);
 		}
-	}
+	}*/
 
 }

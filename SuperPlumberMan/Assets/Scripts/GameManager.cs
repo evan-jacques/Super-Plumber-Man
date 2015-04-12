@@ -207,7 +207,7 @@ public class GameManager : MonoBehaviour {
 				{
 					//p1.transform.FindChild("PointA").GetComponent<PointController>().create = true;
 					Vector3 put = p1.transform.FindChild("PointA").transform.position;
-					GameObject menemy = (GameObject)Instantiate(MovingEnemy,new Vector3(put.x + 2, put.y,put.z),Quaternion.identity);
+					GameObject menemy = (GameObject)Instantiate(MovingEnemy,new Vector3(put.x + 2f, put.y,put.z),Quaternion.identity);
 					menemy.transform.parent = group.transform;
 					menemy.rigidbody2D.velocity = new Vector2(speed,0f);
 				}
