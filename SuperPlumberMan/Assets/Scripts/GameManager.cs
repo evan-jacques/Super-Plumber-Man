@@ -23,10 +23,12 @@ public class GameManager : MonoBehaviour {
 	private float checkpoint;
 	private bool setUpNextArea = false;
 	public List<GameObject> enemies;
+	public List<GameObject> movingPlatforms;
 
 	// Use this for initialization
 	void Start () {
 		enemies = new List<GameObject> ();
+		movingPlatforms = new List<GameObject> ();
 		startbot = new Vector3 (0f, -25f, 0f);
 		starttop = new Vector3 (0f, 25f, 0f);
 		startmid = new Vector3 (0f, 0f, 0f);
@@ -63,7 +65,21 @@ public class GameManager : MonoBehaviour {
 			
 			if(sectionstop.Length > 2)
 			{
-				enemies = new List<GameObject>();
+				foreach(GameObject go in enemies)
+				{
+					if(go.transform.parent.gameObject == sectionstop[0] ||
+					   go.transform.parent.gameObject == sectionsbot[0])
+					{
+						enemies.Remove (go);
+					}
+				}
+				foreach(GameObject go in movingPlatforms)
+				{
+					if(go.transform.parent.gameObject == sectionsmid[0])
+					{
+						movingPlatforms.Remove (go);
+					}
+				}
 				Destroy(sectionstop[0]);
 				Destroy (sectionsbot[0]);
 				Destroy(sectionsmid[0]);
@@ -180,6 +196,7 @@ public class GameManager : MonoBehaviour {
 		float len = 5;
 		start = new Vector3 (start.x + 1f + len / 2, 0f, 0f);
 		GameObject p = (GameObject)Instantiate (MovingPlatform, start, Quaternion.identity);
+		movingPlatforms.Add (p);
 		p.layer = LayerMask.NameToLayer("Ground");
 		start = start + new Vector3 (len / 2, 0f, 0f);
 		p.transform.localScale = new Vector3 (len, 2f, 0f);

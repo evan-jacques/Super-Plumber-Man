@@ -39,9 +39,9 @@ public class MovePlatform : MonoBehaviour {
 		
 		RaycastHit hit;
 		int mask = LayerMask.GetMask ("Ground");
-		Debug.Log (mask);
+		//Debug.Log (mask);
 		float range = 7f;
-		Debug.Log (mask);
+		//Debug.Log (mask);
 		//int mask = LayerMask.GetMask ("Ground");
 		//RaycastHit2D hitup = Physics2D.Raycast (new Vector2 (this.transform.position.x, this.transform.position.y), new Vector2 (0f, 1f), 7f,mask);
 		//RaycastHit2D hitdown = Physics2D.Raycast (new Vector2 (this.transform.position.x, this.transform.position.y), new Vector2 (0f, 1f), 7f,mask);
