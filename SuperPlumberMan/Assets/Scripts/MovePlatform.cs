@@ -39,9 +39,9 @@ public class MovePlatform : MonoBehaviour {
 		
 		RaycastHit hit;
 		int mask = LayerMask.GetMask ("Ground");
-		Debug.Log (mask);
+		//Debug.Log (mask);
 		float range = 7f;
-		Debug.Log (mask);
+		//Debug.Log (mask);
 		//int mask = LayerMask.GetMask ("Ground");
 		//RaycastHit2D hitup = Physics2D.Raycast (new Vector2 (this.transform.position.x, this.transform.position.y), new Vector2 (0f, 1f), 7f,mask);
 		//RaycastHit2D hitdown = Physics2D.Raycast (new Vector2 (this.transform.position.x, this.transform.position.y), new Vector2 (0f, 1f), 7f,mask);
@@ -50,18 +50,18 @@ public class MovePlatform : MonoBehaviour {
 
 		if(Physics.Raycast(shootrayup,out hit, 7f,mask) || Physics.Raycast(shootrayupleft,out hit, 7.5f,mask) || Physics.Raycast(shootrayupright,out hit, 7.5f,mask))
 		{
-			Debug.Log("Here");
+			//Debug.Log("Here");
 			direction = -1;
 		}
 		else if(Physics.Raycast(shootraydown,out hit, 7f,mask) || Physics.Raycast(shootraydownleft,out hit, 7.5f,mask) || Physics.Raycast(shootraydownright,out hit, 7.5f,mask))
 		{
-			Debug.Log("Here1");
+			//Debug.Log("Here1");
 			
 			direction = 1;
 		}
 		if (this.transform.position.y > 44f || this .transform.position.y < -44f)
 		{
-			Debug.Log("HERE3");
+			//Debug.Log("HERE3");
 			direction = direction * -1;
 		}
 		this.transform.position = Vector3.MoveTowards(this.transform.position,new Vector3(this.transform.position.x,45f*direction,0f),speed*Time.deltaTime);

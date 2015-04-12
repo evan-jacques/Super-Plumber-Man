@@ -12,11 +12,11 @@ public class GameManager : MonoBehaviour {
 	public float speed;
 	private Vector3 starttop;
 	private Vector3 startbot;
-	private Vector3 startmid;
+	//private Vector3 startmid;
 	private int sectiontop;
-	private int sectionmid;
+	//private int sectionmid;
 	GameObject[] sectionstop;
-	GameObject[] sectionsmid;
+	//GameObject[] sectionsmid;
 	private int sectionbot;
 	GameObject[] sectionsbot;
 	public GameObject player;
@@ -29,11 +29,11 @@ public class GameManager : MonoBehaviour {
 		enemies = new List<GameObject> ();
 		startbot = new Vector3 (0f, -25f, 0f);
 		starttop = new Vector3 (0f, 25f, 0f);
-		startmid = new Vector3 (0f, 0f, 0f);
+		//startmid = new Vector3 (0f, 0f, 0f);
 		Instantiate(player,new Vector3(2f,-24f,0f),Quaternion.identity);
 		sectiontop = 1;
 		sectionbot = 1;
-		sectionmid = 1;
+		//sectionmid = 1;
 		//int level = 3;
 		//start = createPlatform (level,start,level);
 		starttop = createSectiontop (starttop,sectiontop);
@@ -59,30 +59,32 @@ public class GameManager : MonoBehaviour {
 			//Debug.Log("HERE");
 			sectionstop = GameObject.FindGameObjectsWithTag("sectiontop");
 			sectionsbot = GameObject.FindGameObjectsWithTag("sectionbot");
-			sectionsmid = GameObject.FindGameObjectsWithTag("sectionmid");
+			//sectionsmid = GameObject.FindGameObjectsWithTag("sectionmid");
 			
 			if(sectionstop.Length > 2)
 			{
 				enemies = new List<GameObject>();
 				Destroy(sectionstop[0]);
 				Destroy (sectionsbot[0]);
-				Destroy(sectionsmid[0]);
-				//Debug.Log (checkpoint + " inside");
+				//Destroy(sectionsmid[0]);
+				Debug.Log (checkpoint + " inside");
 				
 			}
 			sectiontop++;
 			sectionbot++;
-			sectionmid++;
+			//sectionmid++;
 			starttop = createSectiontop(starttop,sectiontop);
 			startbot = createSectionbot(startbot,sectionbot);
 			//startmid = createSectionmid(startmid,sectionmid);
 			sectionstop = GameObject.FindGameObjectsWithTag("sectiontop");
 			checkpoint = sectionstop[1].transform.GetChild(0).GetChild(0).position.x + ((sectionstop[1].transform.GetChild (29).GetChild(0).position.x - sectionstop[1].transform.GetChild(0).GetChild(0).position.x)* 0.5f);
+			Debug.Log(checkpoint + " " + sectionstop[1]);
+			Debug.Log (sectionstop);
 			setUpNextArea = false;
 			
 			
 		}
-		//Debug.Log (checkpoint);
+		Debug.Log (checkpoint + " outside");
 	}
 	
 	Vector3 createSectiontop(Vector3 start, int sectionNumber)
