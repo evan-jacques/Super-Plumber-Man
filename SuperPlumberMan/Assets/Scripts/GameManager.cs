@@ -38,7 +38,7 @@ public class GameManager : MonoBehaviour {
 		//start = createPlatform (level,start,level);
 		starttop = createSectiontop (starttop,sectiontop);
 		startbot = createSectionbot (startbot,sectionbot);
-		startmid = createSectionmid (startmid, sectionmid);
+		//startmid = createSectionmid (startmid, sectionmid);
 		float st = GameObject.FindGameObjectWithTag ("sectiontop").transform.GetChild (0).GetChild(0).position.x;
 		float end = GameObject.FindGameObjectWithTag ("sectiontop").transform.GetChild (29).GetChild(0).position.x;
 		checkpoint = ((end - st) * 0.5f) + st;
@@ -75,7 +75,7 @@ public class GameManager : MonoBehaviour {
 			sectionmid++;
 			starttop = createSectiontop(starttop,sectiontop);
 			startbot = createSectionbot(startbot,sectionbot);
-			startmid = createSectionmid(startmid,sectionmid);
+			//startmid = createSectionmid(startmid,sectionmid);
 			sectionstop = GameObject.FindGameObjectsWithTag("sectiontop");
 			checkpoint = sectionstop[1].transform.GetChild(0).GetChild(0).position.x + ((sectionstop[1].transform.GetChild (29).GetChild(0).position.x - sectionstop[1].transform.GetChild(0).GetChild(0).position.x)* 0.5f);
 			setUpNextArea = false;
@@ -121,7 +121,11 @@ public class GameManager : MonoBehaviour {
 					level = 0;
 			}
 			start = createPlatform (level, start, level, section);
+			if (i % 10 == 1)
+				createPlatformmid(start,sectionNumber);
 			start = start + new Vector3 (width, height, 0f);
+
+
 		}
 		return start;
 	}
@@ -166,23 +170,21 @@ public class GameManager : MonoBehaviour {
 		return start;
 	}
 	
-	Vector3 createSectionmid(Vector3 start, int sectionNumber)
+	void createPlatformmid(Vector3 start, int sectionNumber)
 	{
-		GameObject section = new GameObject ();
-		section.name = "" + sectionNumber;
-		section.tag = "sectionmid";
-		while(start.x < starttop.x)
-		{
-			float len = 5;
-			start = start + new Vector3 (len / 2, 0f, 0f);
-			GameObject p = (GameObject)Instantiate (MovingPlatform, start, Quaternion.identity);
-			p.layer = LayerMask.NameToLayer("Ground");
-			start = start + new Vector3 (len / 2, 0f, 0f);
-			p.transform.localScale = new Vector3 (len, 2f, 0f);
-			p.transform.parent = section.transform;
-			start = start + new Vector3(55f,0f,0f);
-		}
-		return start;
+		//GameObject section = new GameObject ();
+		//section.name = "" + sectionNumber;
+		//section.tag = "sectionmid";
+		GameObject prent = GameObject.FindGameObjectWithTag ("sectiontop");
+
+		float len = 5;
+		start = new Vector3 (start.x + 1f + len / 2, 0f, 0f);
+		GameObject p = (GameObject)Instantiate (MovingPlatform, start, Quaternion.identity);
+		p.layer = LayerMask.NameToLayer("Ground");
+		start = start + new Vector3 (len / 2, 0f, 0f);
+		p.transform.localScale = new Vector3 (len, 2f, 0f);
+		p.transform.parent = prent.transform;
+			//start = start + new Vector3(305f,0f,0f);
 	}
 	
 	Vector3 createPlatform(int level, Vector3 start, int name, GameObject section)
@@ -209,7 +211,7 @@ public class GameManager : MonoBehaviour {
 				{
 					//p1.transform.FindChild("PointA").GetComponent<PointController>().create = true;
 					Vector3 put = p1.transform.FindChild("PointA").transform.position;
-					GameObject menemy = (GameObject)Instantiate(MovingEnemy,new Vector3(put.x + 2, put.y,put.z),Quaternion.identity);
+					GameObject menemy = (GameObject)Instantiate(MovingEnemy,new Vector3(put.x + 2f, put.y,put.z),Quaternion.identity);
 					menemy.transform.parent = group.transform;
 					menemy.rigidbody2D.velocity = new Vector2(speed,0f);
 					enemies.Add(menemy);
