@@ -46,7 +46,9 @@ public class GameManager : MonoBehaviour {
 		checkpoint = ((end - st) * 0.5f) + st;
 		//Debug.Log (checkpoint);
 		//Debug.Log (GameObject.FindGameObjectWithTag("sectiontop").transform.childCount);
-		
+		xComparer xc = new xComparer();
+		enemies.Sort(xc);
+		movingPlatforms.Sort(xc);
 		
 		//start = createSection (start);
 		
@@ -79,6 +81,9 @@ public class GameManager : MonoBehaviour {
 			//Debug.Log(checkpoint + " " + sectionstop[1]);
 			//Debug.Log (sectionstop);
 			setUpNextArea = false;
+			xComparer xc = new xComparer();
+			enemies.Sort(xc);
+			movingPlatforms.Sort(xc);
 		}
 		if(sectionstop.Length > 3)
 		{
@@ -345,7 +350,7 @@ public class GameManager : MonoBehaviour {
 				if (last == 0) 
 				{
 					last = 1;
-					int spk = Random.Range (3, 11);
+					int spk = Random.Range (3, 7);
 					start = start + new Vector3 (1f, 0f, 0f);
 					for (int j = 0; j < spk; j++) 
 					{
@@ -409,7 +414,7 @@ public class GameManager : MonoBehaviour {
 				if (last == 0) 
 				{
 					last = 1;
-					int spk = Random.Range (5, 11);
+					int spk = Random.Range (5, 7);
 					start = start + new Vector3 (1f, 0f, 0f);
 					for (int j = 0; j < spk; j++) {
 						GameObject spike = (GameObject)Instantiate (spikes, start, Quaternion.identity);

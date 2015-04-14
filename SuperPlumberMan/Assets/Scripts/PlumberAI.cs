@@ -117,25 +117,7 @@ public class PlumberAI : MonoBehaviour {
 		//test for enemies nearby only while grounded and can react
 		if(grounded)
 		{
-		GameObject closest = null;
-		float minMagnitude = 0;
-		foreach(GameObject go in gm.enemies)
-		{
-			float dist = (go.transform.position - transform.position).magnitude;
-			//only count it if it is the closest in the forward direction
-			if((closest == null || dist < minMagnitude) && (go.transform.position - transform.position).x > 0)
-			{
-				closest = go;
-				minMagnitude = dist;
-			}
-		}
-		if (getType (closest) == "Mover" && minMagnitude < 10) {
-			avoidingMover = closest;
-		}
-		else if(getType(closest) == "Popup"&& minMagnitude < 10)
-		{
-			avoidingPopup = closest;
-		}
+			testForEnemies();
 		}
 
 		//check whether we should keep going up or to jump
@@ -295,33 +277,35 @@ public class PlumberAI : MonoBehaviour {
 			}
 		}
 		if (dangersTop <= dangersBot && transform.position.y < 0) {
-			switchBot();
+			switchTop();
 		}
 		System.Random rnd = new System.Random ();
 		if (dangersBot < dangersTop && transform.position.y > 0 && rnd.Next(4) < 3 ) { //gives a weighting to staying top
-			switchTop ();
+			switchBot ();
 		}
 	}
 
 	private void switchTop()
 	{
-		RaycastHit2D upToGround = (Physics2D.Linecast(transform.position, (Vector2)transform.position + new Vector2(0, 200), 1 << LayerMask.NameToLayer("Ground")));
+		RaycastHit2D upToGround = (Physics2D.Linecast(transform.position, transform.position + new Vector3(0, 200, 0), 1 << LayerMask.NameToLayer("Ground")));
 		if (upToGround) {
 			GameObject plat = upToGround.collider.gameObject;
 			transform.position = new Vector3(transform.position.x, plat.transform.position.y + 2, 0);
 			avoidingMover = null;
 			avoidingPopup = null;
+			takingPlatform = null;
 		}
 	}
 
 	private void switchBot()
 	{
-		RaycastHit2D downToGround = (Physics2D.Linecast(transform.position, (Vector2)transform.position + new Vector2(0, -200), 1 << LayerMask.NameToLayer("Ground")));
+		RaycastHit2D downToGround = (Physics2D.Linecast(transform.position - new Vector3(0, 10, 0), (Vector2)transform.position + new Vector2(0, -200), 1 << LayerMask.NameToLayer("Ground")));
 		if (downToGround) {
 			GameObject plat = downToGround.collider.gameObject;
 			transform.position = new Vector3(transform.position.x, plat.transform.position.y + 2, 0);
 			avoidingMover = null;
 			avoidingPopup = null;
+			takingPlatform = null;
 		}
 	}
 
@@ -393,12 +377,21 @@ public class PlumberAI : MonoBehaviour {
 			GameObject[] platforms = gm.movingPlatforms.ToArray();
 			float min = 10000;
 			int plat = -1;
-			for(int i = 0; i < platforms.Length; i++)
+			xComparer xc = new xComparer ();
+			int indexPlats = gm.movingPlatforms.BinarySearch (this.gameObject, xc);
+			if (indexPlats < 0) {
+				indexPlats = ~indexPlats;
+			}
+			for(int i = indexPlats; i < platforms.Length; i++)
 			{
 				if(platforms[i].transform.position.x < min && platforms[i].transform.position.x > transform.position.x)
 				{
 					min = platforms[i].transform.position.x;
 					plat = i;
+				}
+				if(platforms[i].transform.position.x - transform.position.x > 20) //when too far away stop checking
+				{
+					break;
 				}
 			}
 			if (plat != -1)
@@ -414,5 +407,56 @@ public class PlumberAI : MonoBehaviour {
 			return gm.movingPlatforms[nearestPlatform];
 		}
 		return null;
+	}
+
+	private void testForEnemies()
+	{
+		GameObject closest = null;
+		float minMagnitude = 0;
+		xComparer xc = new xComparer ();
+		int indexEnemies = gm.enemies.BinarySearch (this.gameObject, xc);
+		if (indexEnemies < 0) {
+			indexEnemies = ~indexEnemies;
+		}
+		if (indexEnemies > 0)
+			indexEnemies--;
+		GameObject[] enemies = gm.enemies.ToArray ();
+		for(int i = indexEnemies; i < enemies.Length; i++)
+		{
+			float dist = (enemies[i].transform.position - transform.position).magnitude;
+			//only count it if it is the closest in the forward direction
+			if((closest == null || dist < minMagnitude) && (enemies[i].transform.position - transform.position).x > 0)
+			{
+				closest = enemies[i];
+				minMagnitude = dist;
+			}
+			if(enemies[i].transform.position.x - transform.position.x > 20) //when too far away stop checking
+			{
+				break;
+			}
+		}
+		if (getType (closest) == "Mover" && minMagnitude < 10) {
+			avoidingMover = closest;
+		}
+		else if(getType(closest) == "Popup"&& minMagnitude < 10)
+		{
+			avoidingPopup = closest;
+		}
+	}
+}
+
+class xComparer : IComparer<GameObject>
+{
+	public int Compare(GameObject t1, GameObject t2)
+	{
+		if (t1.transform.position.x == t2.transform.position.x) {
+			return 0;
+		}
+		if (t1.transform.position.x >= t2.transform.position.x) {
+			return 1;
+		}
+		else { //t1 must be less
+			return -1;
+		}
 	}
 }

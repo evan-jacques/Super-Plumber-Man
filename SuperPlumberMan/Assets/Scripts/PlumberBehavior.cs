@@ -96,8 +96,8 @@ public class PlumberBehavior : MonoBehaviour {
 		if (transform.position.y < -55)
 			respawn ();
 
-		if (Time.time - lastInputTime > 5)
-			pai.activate ();
+		if (Time.time - lastInputTime > 10)
+			startAI ();
 
 		//Getting Inputs -----------------------------------------------------
 		float h = Input.GetAxis("Horizontal");
@@ -198,6 +198,7 @@ public class PlumberBehavior : MonoBehaviour {
 
 	private void stopAI()
 	{
+		lastInputTime = Time.time;
 		pai.deactivate();
 		AIRunning = false;
 	}

@@ -21,7 +21,7 @@ public class PopupController : MonoBehaviour {
 		{
 			this.transform.position = Vector3.MoveTowards(this.transform.position, new Vector3(this.transform.parent.position.x,this.transform.parent.position.y, this.transform.parent.position.z), speed*Time.deltaTime);
 		}
-		if(time > 3f){
+		if(time > 4f){
 			time = 0f;
 			move = move*-1;
 		}
