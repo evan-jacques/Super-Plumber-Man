@@ -185,7 +185,7 @@ public class PlumberAI : MonoBehaviour {
 		if (platforming)
 			return;
 		Rect curInfo = new Rect (Screen.width / 2 - Screen.height / 10, 2 * Screen.height / 10, Screen.width / 5, Screen.height / 20);
-		GUI.Box (curInfo, "Next Jump Available in : " + (20 - (Time.time - lastTimeCheck)));
+		GUI.Box (curInfo, "Next Jump Available in : " + (int)(20 - (Time.time - lastTimeCheck)));
 	}
 
 	public void avoidMover()

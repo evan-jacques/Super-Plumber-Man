@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour {
 	//private Vector3 startmid;
 	private int sectiontop;
 	//private int sectionmid;
-	GameObject[] sectionstop;
+	GameObject[] sectionstop = {};
 	//GameObject[] sectionsmid;
 	private int sectionbot;
 	GameObject[] sectionsbot;
