@@ -76,15 +76,18 @@ public class GameManager : MonoBehaviour {
 						break;
 					} //they are added in order, easy to do
 				}
-				//foreach(GameObject go in movingPlatforms)
-			//	{
-				//	if(go.transform.root.gameObject == sectionsmid[0])
-				//	{
-				//		movingPlatforms.Remove (go);
-				//	}
-				//
+				foreach(GameObject go in movingPlatforms.GetRange(0, movingPlatforms.Count))
+				{
+					if(go.transform.root.gameObject.name == sectionstop[0].name)
+					{
+						movingPlatforms.Remove (go);
+					}
+					else{
+						break;
+					} //they are added in order, easy to do
+				}
 				Destroy(sectionstop[0]);
-				Destroy (sectionsbot[0]);
+				Destroy(sectionsbot[0]);
 				//Destroy(sectionsmid[0]);
 				//Debug.Log (checkpoint + " inside");
 				

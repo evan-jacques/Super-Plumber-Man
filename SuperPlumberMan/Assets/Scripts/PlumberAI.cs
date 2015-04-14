@@ -30,8 +30,8 @@ public class PlumberAI : MonoBehaviour {
 
 	//for switching levels
 	private float lastTimeCheck = 0;
-	private bool superjumping = false;
-	private bool platforming = true;
+	private bool superjumping = true;
+	private bool platforming = false;
 
 	// Use this for initialization
 	void Awake () 
