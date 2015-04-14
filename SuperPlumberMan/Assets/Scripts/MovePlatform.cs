@@ -4,7 +4,8 @@ using System.Collections;
 public class MovePlatform : MonoBehaviour {
 	public float speed;
 	public int direction;
-	
+	public Vector3 lastPosition;
+
 	void Start() 
 	{
 		direction = 1;
@@ -23,9 +24,9 @@ public class MovePlatform : MonoBehaviour {
 		Ray shootrayupright = new Ray (this.transform.position, new Vector3 (2.5f,7f, 0f));
 
 
-		Ray shootraydown = new Ray (this.transform.position, new Vector3 (0f,-7f, 0f));
-		Ray shootraydownleft = new Ray (this.transform.position, new Vector3 (2.5f,-7f, 0f));
-		Ray shootraydownright = new Ray (this.transform.position, new Vector3 (-2.5f,-7f, 0f));
+		Ray shootraydown = new Ray (this.transform.position, new Vector3 (0f,-1f, 0f));
+		Ray shootraydownleft = new Ray (this.transform.position, new Vector3 (2.5f,-1f, 0f));
+		Ray shootraydownright = new Ray (this.transform.position, new Vector3 (-2.5f,-1f, 0f));
 
 		//Debug.Log (shootray);
 		Debug.DrawRay (this.transform.position, new Vector3 (0f,7f, 0f), Color.black);
@@ -51,19 +52,21 @@ public class MovePlatform : MonoBehaviour {
 		if(Physics.Raycast(shootrayup,out hit, 7f,mask) || Physics.Raycast(shootrayupleft,out hit, 7.5f,mask) || Physics.Raycast(shootrayupright,out hit, 7.5f,mask))
 		{
 			//Debug.Log("Here");
-			direction = -1;
+			if(transform.position.y > 0) //we don't need to turn around if we are still in the upper section
+				direction = -1;
 		}
 		else if(Physics.Raycast(shootraydown,out hit, 7f,mask) || Physics.Raycast(shootraydownleft,out hit, 7.5f,mask) || Physics.Raycast(shootraydownright,out hit, 7.5f,mask))
 		{
 			//Debug.Log("Here1");
-			
-			direction = 1;
+			if(transform.position.y < 0) //we don't need to turn around if we are still in the upper section
+				direction = 1;
 		}
 		if (this.transform.position.y > 44f || this .transform.position.y < -44f)
 		{
 			//Debug.Log("HERE3");
 			direction = direction * -1;
 		}
+		lastPosition = this.transform.position;
 		this.transform.position = Vector3.MoveTowards(this.transform.position,new Vector3(this.transform.position.x,45f*direction,0f),speed*Time.deltaTime);
 		
 		

@@ -52,7 +52,7 @@ public class GameManager : MonoBehaviour {
 		
 	}
 	
-	void Update () 
+	void FixedUpdate () 
 	{
 		if(GameObject.FindGameObjectWithTag("Player").transform.position.x > checkpoint)
 			setUpNextArea = true;
@@ -65,13 +65,16 @@ public class GameManager : MonoBehaviour {
 			
 			if(sectionstop.Length > 2)
 			{
-				foreach(GameObject go in enemies)
+				foreach(GameObject go in enemies.GetRange(0, enemies.Count)) //use a copy so we don't haev to worry about the changes we make
 				{
-					if(go.transform.root.gameObject == sectionstop[0] ||
-					   go.transform.root.gameObject == sectionsbot[0])
+					if(go.transform.root.gameObject.name == sectionstop[0].name ||
+					   go.transform.root.gameObject.name == sectionsbot[0].name)
 					{
 						enemies.Remove (go);
 					}
+					else{
+						break;
+					} //they are added in order, easy to do
 				}
 				//foreach(GameObject go in movingPlatforms)
 			//	{
@@ -79,11 +82,11 @@ public class GameManager : MonoBehaviour {
 				//	{
 				//		movingPlatforms.Remove (go);
 				//	}
-				//}
+				//
 				Destroy(sectionstop[0]);
 				Destroy (sectionsbot[0]);
 				//Destroy(sectionsmid[0]);
-				Debug.Log (checkpoint + " inside");
+				//Debug.Log (checkpoint + " inside");
 				
 			}
 			sectiontop++;
@@ -94,13 +97,13 @@ public class GameManager : MonoBehaviour {
 			//startmid = createSectionmid(startmid,sectionmid);
 			sectionstop = GameObject.FindGameObjectsWithTag("sectiontop");
 			checkpoint = sectionstop[1].transform.GetChild(0).GetChild(0).position.x + ((sectionstop[1].transform.GetChild (29).GetChild(0).position.x - sectionstop[1].transform.GetChild(0).GetChild(0).position.x)* 0.5f);
-			Debug.Log(checkpoint + " " + sectionstop[1]);
-			Debug.Log (sectionstop);
+			//Debug.Log(checkpoint + " " + sectionstop[1]);
+			//Debug.Log (sectionstop);
 			setUpNextArea = false;
 			
 			
 		}
-		Debug.Log (checkpoint + " outside");
+		//Debug.Log (checkpoint + " outside");
 	}
 	
 	Vector3 createSectiontop(Vector3 start, int sectionNumber)
