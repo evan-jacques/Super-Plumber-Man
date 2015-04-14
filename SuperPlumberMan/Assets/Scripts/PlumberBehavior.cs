@@ -74,9 +74,13 @@ public class PlumberBehavior : MonoBehaviour {
 	}
 
 	void FixedUpdate()
-	{
-		if (lives <= 0)
+	{	
+		if (lives <= 0) {
+			if (Input.GetKey (KeyCode.Space)) {
+				lives = 3;
+			}
 			return;
+		}
 		if (transform.position.y < -55)
 			respawn ();
 
@@ -152,15 +156,15 @@ public class PlumberBehavior : MonoBehaviour {
 	GameObject currentPlatform()
 	{
 
-		GameObject p1 = Physics2D.Linecast (transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer ("Ground")).collider.gameObject;
-		GameObject p2 = Physics2D.Linecast (transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer ("Ground")).collider.gameObject;
-		GameObject p3 = Physics2D.Linecast (transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer ("Ground")).collider.gameObject;
-		if (p1 != null)
-			return p1;
-		if (p2 != null)
-			return p2;
-		if (p3 != null)
-			return p3;
+		RaycastHit2D p1 = Physics2D.Linecast (transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer ("Ground"));
+		RaycastHit2D p2 = Physics2D.Linecast (transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer ("Ground"));
+		RaycastHit2D p3 = Physics2D.Linecast (transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer ("Ground"));
+		if (p1)
+			return p1.collider.gameObject;
+		if (p2)
+			return p2.collider.gameObject;
+		if (p3)
+			return p3.collider.gameObject;
 		return null;
 	}
 
@@ -216,7 +220,7 @@ public class PlumberBehavior : MonoBehaviour {
 		RaycastHit2D sideHitUp = Physics2D.Linecast (transform.position + new Vector3(-5, 0, 0), transform.position + new Vector3(-5, 40, 0), 1 << LayerMask.NameToLayer("Ground"));
 		if (sideHitUp)
 		{
-			transform.position = hitUp.transform.position + new Vector3(0, 1, 0);
+			transform.position = sideHitUp.transform.position + new Vector3(0, 1, 0);
 		}
 
 		transform.position = mostRecentPlatform.transform.position + new Vector3 (0, 1, 0);

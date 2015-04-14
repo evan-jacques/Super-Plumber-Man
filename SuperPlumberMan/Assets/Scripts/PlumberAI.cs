@@ -2,6 +2,7 @@
 
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class PlumberAI : MonoBehaviour {
 
@@ -17,6 +18,11 @@ public class PlumberAI : MonoBehaviour {
 	public Transform airCheck;
 	public Transform airCheck2;
 	GameManager gm;
+
+	//for switching lanes
+	public GameObject takingPlatform = null;
+	public int goingUp = -1;
+	public int nearestPlatform = -1; //an index into gm.movingPlatforms
 
 	//for dealing with enemies
 	public GameObject avoidingMover = null;
@@ -52,14 +58,14 @@ public class PlumberAI : MonoBehaviour {
 	
 	void FixedUpdate()
 	{
-		float fwd = pb.facingRight ? 1 : -1;
+		//float fwd = pb.facingRight ? 1 : -1;
 		if (!running)
 			return;
 
-		if (Time.time - lastTimeCheck > 20) {
-			lastTimeCheck = Time.time;
-			considerSuperJump();
-		}
+//		if (Time.time - lastTimeCheck > 20) {
+//			lastTimeCheck = Time.time;
+//			considerSuperJump();
+//		}
 
 		bool grounded = Physics2D.Linecast(transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer("Ground")) ||
 			Physics2D.Linecast(transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer("Ground")) ||
@@ -73,71 +79,20 @@ public class PlumberAI : MonoBehaviour {
 		//if nearest enemy is a popup enemy, wait for the popper and then keep going
 		//if nearest enemy is a mover, wait for it to move toward you and jump over it
 		if (avoidingMover) {
-			if ((avoidingMover.transform.position - transform.position).x <= 0){
-				avoidingMover = null;
-				return;
-			}
-			if(Mathf.Sign (avoidingMover.rigidbody2D.velocity.x) == -1) { //if it is moving toward us we wait until it is close then jump over it
-				float dist = (avoidingMover.transform.position - transform.position).magnitude;
-				if(dist < 4)
-				{
-					pb.setUpInput(1.0F);
-					pb.setHorizInput(1.0F);
-					avoidingMover = null;
-				}
-				else
-				{
-					pb.setHorizInput(0.0F);
-				}
-			}
-			else //otherwise we stop
-			{
-				float dist = (avoidingMover.transform.position - transform.position).magnitude;
-				if(dist < 4)
-				{
-					pb.setHorizInput(0.0F);
-				}
-				else
-				{
-					pb.setHorizInput(1.0F);
-				}
-
-			}
+			avoidMover();
 			return;
 		}
 
 		if (avoidingPopup) {
-			if ((avoidingPopup.transform.position - transform.position).x <= 0){
-				avoidingPopup = null;
-				return;
-			}
-			GameObject popper = avoidingPopup.GetComponentInChildren<PopupController>().gameObject;
-			SpriteRenderer sr = popper.GetComponent<SpriteRenderer>();
-			RaycastHit2D boxInFront = Physics2D.Linecast(transform.position, popper.transform.position, 1 << LayerMask.NameToLayer("Ground"));
-			float dist = (avoidingPopup.transform.position - transform.position).magnitude;
-			if(!boxInFront) { //if it is moving toward us we wait until it is close then jump over it
-				if(dist >5)
-				{
-					pb.setHorizInput(1.0F);
-				}
-				else //we wait until the popper goes down and then jump over it
-				{
-					pb.setHorizInput(0.0F);
-				}
-			}
-			else
-			{
-				if(dist > 5)
-				{
-					pb.setHorizInput(1.0F);
-				}
-				else
-				{
-					pb.setUpInput(1.0F);
-					pb.setHorizInput(0.0F);
-					avoidingPopup = null;
-				}
-			}
+			avoidPopup();
+			return;
+		}
+
+		//try moving between platforms
+		considerSuperJump(nearMovingPlatform());
+
+		if (takingPlatform != null) { //if we're switching lanes, jump to there and return
+			takePlatform(goingUp, takingPlatform);
 			return;
 		}
 
@@ -218,38 +173,93 @@ public class PlumberAI : MonoBehaviour {
 
 	void OnGUI()
 	{
-		Rect curInfo = new Rect (Screen.width / 2 - Screen.height / 10, 2 * Screen.height / 10, Screen.width / 5, Screen.height / 20);
-		GUI.Box (curInfo, "Next Jump Available in : " + (20 - (Time.time - lastTimeCheck)));
+		if (!running)
+			return;
+		//Rect curInfo = new Rect (Screen.width / 2 - Screen.height / 10, 2 * Screen.height / 10, Screen.width / 5, Screen.height / 20);
+		//GUI.Box (curInfo, "Next Jump Available in : " + (20 - (Time.time - lastTimeCheck)));
 	}
 
-	public void considerSuperJump()
+	public void avoidMover()
 	{
+		if ((avoidingMover.transform.position - transform.position).x <= 0) {
+			avoidingMover = null;
+			return;
+		}
+		if (Mathf.Sign (avoidingMover.rigidbody2D.velocity.x) == -1) { //if it is moving toward us we wait until it is close then jump over it
+			float dist = (avoidingMover.transform.position - transform.position).magnitude;
+			if (dist < 4) {
+				pb.setUpInput (1.0F);
+				pb.setHorizInput (1.0F);
+				avoidingMover = null;
+			} else {
+				pb.setHorizInput (0.0F);
+			}
+		} else { //otherwise we stop
+			pb.setHorizInput (0.0F);
+		}
+		return;
+	}
+
+	public void avoidPopup()
+	{
+		if ((avoidingPopup.transform.position - transform.position).x <= 0) {
+			avoidingPopup = null;
+			return;
+		}
+		GameObject popper = avoidingPopup.GetComponentInChildren<PopupController> ().gameObject;
+		//SpriteRenderer sr = popper.GetComponent<SpriteRenderer>();
+		RaycastHit2D boxInFront = Physics2D.Linecast (transform.position, popper.transform.position, 1 << LayerMask.NameToLayer ("Ground"));
+		float dist = (avoidingPopup.transform.position - transform.position).magnitude;
+		if (!boxInFront) { //if it is moving toward us we wait until it is close then jump over it
+			if (dist > 5) {
+				pb.setHorizInput (1.0F);
+			} else { //we wait until the popper goes down and then jump over it
+				pb.setHorizInput (0.0F);
+			}
+		} else {
+			if (dist > 5) {
+				pb.setHorizInput (1.0F);
+			} else {
+				pb.setUpInput (1.0F);
+				pb.setHorizInput (0.0F);
+				avoidingPopup = null;
+			}
+		}
+		return;
+	}
+
+	public void considerSuperJump(GameObject go)
+	{
+		if (go == null)
+			return;
 		//count the number of enemies and platforms in top row and bottom row in the coming area
 		//choose which setup seems safer
 		int dangersTop = 0;
 		int dangersBot = 0;
-		foreach (GameObject go in GameObject.FindGameObjectsWithTag("sectiontop")){
-			if (getType (go) == "Spikes" || getType (go) == "Spikes" || getType (go) == "Spikes"){
-				if(go.transform.position.x - transform.position.x < 100) //only care about nearby paths
+		foreach (GameObject g in GameObject.FindGameObjectsWithTag("sectiontop")){
+			if (getType (g) == "Spikes" || getType (g) == "Spikes" || getType (g) == "Spikes"){
+				if(g.transform.position.x - transform.position.x < 100) //only care about nearby paths
 				{
 					dangersTop ++;
 				}
 			}
 		}
-		foreach (GameObject go in GameObject.FindGameObjectsWithTag("sectionbot")){
-			if (getType (go) == "Spikes" || getType (go) == "Spikes" || getType (go) == "Spikes"){
-				if(go.transform.position.x - transform.position.x < 100) //only care about nearby paths
+		foreach (GameObject g in GameObject.FindGameObjectsWithTag("sectionbot")){
+			if (getType (g) == "Spikes" || getType (g) == "Spikes" || getType (g) == "Spikes"){
+				if(g.transform.position.x - transform.position.x < 100) //only care about nearby paths
 				{
 					dangersBot ++;
 				}
 			}
 		}
 		if (dangersTop <= dangersBot && transform.position.y < 0) {
-			switchTop();
+			takingPlatform = go;
+			goingUp = 1;
 		}
 		System.Random rnd = new System.Random ();
 		if (dangersBot < dangersTop && transform.position.y > 0 && rnd.Next(4) < 3 ) { //gives a weighting to staying top
-			switchBot();
+			takingPlatform = go;
+			goingUp = 0;
 		}
 	}
 
@@ -273,5 +283,73 @@ public class PlumberAI : MonoBehaviour {
 			avoidingMover = null;
 			avoidingPopup = null;
 		}
+	}
+
+	private void takePlatform(int i, GameObject go) //0 for down, 1 for up
+	{
+		//test whether we're on platform
+		RaycastHit2D r = (Physics2D.Linecast(transform.position, (Vector2)transform.position + new Vector2(0, -3), 1 << LayerMask.NameToLayer("Ground")));
+		if (!r)
+			jumpTo (go);
+		if(r && i == 1 && rb2d.velocity.y < 0 && transform.position.y > 0) //if we reach the top, jump and leave
+		{
+			pb.setUpInput(1.0F);
+			pb.setHorizInput(1.0F);
+			takingPlatform = null;
+		}
+		if(r && i == 0 && rb2d.velocity.y > 0 && transform.position.y < 0) //if we reach the bottom, jump and leave
+		{
+			pb.setUpInput(1.0F);
+			pb.setHorizInput(1.0F);
+			takingPlatform = null;
+		}
+	}
+	
+	private void jumpTo(GameObject go)
+	{
+		Vector3 dir = go.transform.position - transform.position;
+		bool grounded = Physics2D.Linecast(transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer("Ground")) ||
+			Physics2D.Linecast(transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer("Ground")) ||
+				Physics2D.Linecast(transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer("Ground"));
+		if (grounded && dir.y > 6) {
+			pb.setHorizInput(0.0F);
+		}
+		if (dir.y < 6 && dir.y > -2) {
+			pb.setUpInput(1.0F);
+		}
+		if (!grounded && dir.x > 2.5)
+			pb.setHorizInput (1.0F);
+		if (!grounded && dir.x < 0)
+			pb.setHorizInput (-1.0F);
+	}
+
+	private GameObject nearMovingPlatform()
+	{
+		if (nearestPlatform == -1 || gm.movingPlatforms[nearestPlatform].transform.position.x < transform.position.x) //then find the nearest
+		{
+			GameObject[] platforms = gm.movingPlatforms.ToArray();
+			float min = 10000;
+			int plat = -1;
+			for(int i = 0; i < platforms.Length; i++)
+			{
+				if(platforms[i].transform.position.x < min && platforms[i].transform.position.x > transform.position.x)
+				{
+					min = platforms[i].transform.position.x;
+					plat = i;
+				}
+			}
+			if (plat != -1)
+			{
+				nearestPlatform = plat;
+			}
+			else
+			{
+				nearestPlatform = -1;
+			}
+		}
+		if (nearestPlatform != -1 && (gm.movingPlatforms [nearestPlatform].transform.position.x - transform.position.x) < 5) {
+			return gm.movingPlatforms[nearestPlatform];
+		}
+		return null;
 	}
 }
