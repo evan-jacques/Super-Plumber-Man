@@ -73,13 +73,13 @@ public class GameManager : MonoBehaviour {
 						enemies.Remove (go);
 					}
 				}
-				foreach(GameObject go in movingPlatforms)
-				{
-					if(go.transform.root.gameObject == sectionsmid[0])
-					{
-						movingPlatforms.Remove (go);
-					}
-				}
+				//foreach(GameObject go in movingPlatforms)
+			//	{
+				//	if(go.transform.root.gameObject == sectionsmid[0])
+				//	{
+				//		movingPlatforms.Remove (go);
+				//	}
+				//}
 				Destroy(sectionstop[0]);
 				Destroy (sectionsbot[0]);
 				//Destroy(sectionsmid[0]);
@@ -106,7 +106,7 @@ public class GameManager : MonoBehaviour {
 	Vector3 createSectiontop(Vector3 start, int sectionNumber)
 	{
 		GameObject section = new GameObject ();
-		section.name = "" + sectionNumber;
+		section.name = "section: " + sectionNumber;
 		section.tag = "sectiontop";
 		for (int i = 0; i < 30; i++) 
 		{
@@ -150,7 +150,7 @@ public class GameManager : MonoBehaviour {
 	Vector3 createSectionbot(Vector3 start, int sectionNumber)
 	{
 		GameObject section = new GameObject ();
-		section.name = "" + sectionNumber;
+		section.name = "section: " + sectionNumber;
 		section.tag = "sectionbot";
 		while(start.x < starttop.x)
 		{
@@ -193,8 +193,7 @@ public class GameManager : MonoBehaviour {
 		//GameObject section = new GameObject ();
 		//section.name = "" + sectionNumber;
 		//section.tag = "sectionmid";
-		GameObject prent = GameObject.FindGameObjectWithTag ("sectiontop");
-
+		GameObject prent = GameObject.Find ("section: " + sectionNumber);
 		float len = 5;
 		start = new Vector3 (start.x + 1f + len / 2, 0f, 0f);
 		GameObject p = (GameObject)Instantiate (MovingPlatform, start, Quaternion.identity);
