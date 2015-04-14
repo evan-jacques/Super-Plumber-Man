@@ -79,62 +79,12 @@ public class PlumberAI : MonoBehaviour {
 		//if nearest enemy is a popup enemy, wait for the popper and then keep going
 		//if nearest enemy is a mover, wait for it to move toward you and jump over it
 		if (avoidingMover) {
-			if ((avoidingMover.transform.position - transform.position).x <= 0){
-				avoidingMover = null;
-				return;
-			}
-			if(Mathf.Sign (avoidingMover.rigidbody2D.velocity.x) == -1) { //if it is moving toward us we wait until it is close then jump over it
-				float dist = (avoidingMover.transform.position - transform.position).magnitude;
-				if(dist < 4)
-				{
-					pb.setUpInput(1.0F);
-					pb.setHorizInput(1.0F);
-					avoidingMover = null;
-				}
-				else
-				{
-					pb.setHorizInput(0.0F);
-				}
-			}
-			else //otherwise we stop
-			{
-				pb.setHorizInput(0.0F);
-			}
+			avoidMover();
 			return;
 		}
 
 		if (avoidingPopup) {
-			if ((avoidingPopup.transform.position - transform.position).x <= 0){
-				avoidingPopup = null;
-				return;
-			}
-			GameObject popper = avoidingPopup.GetComponentInChildren<PopupController>().gameObject;
-			//SpriteRenderer sr = popper.GetComponent<SpriteRenderer>();
-			RaycastHit2D boxInFront = Physics2D.Linecast(transform.position, popper.transform.position, 1 << LayerMask.NameToLayer("Ground"));
-			float dist = (avoidingPopup.transform.position - transform.position).magnitude;
-			if(!boxInFront) { //if it is moving toward us we wait until it is close then jump over it
-				if(dist >5)
-				{
-					pb.setHorizInput(1.0F);
-				}
-				else //we wait until the popper goes down and then jump over it
-				{
-					pb.setHorizInput(0.0F);
-				}
-			}
-			else
-			{
-				if(dist > 5)
-				{
-					pb.setHorizInput(1.0F);
-				}
-				else
-				{
-					pb.setUpInput(1.0F);
-					pb.setHorizInput(0.0F);
-					avoidingPopup = null;
-				}
-			}
+			avoidPopup();
 			return;
 		}
 
@@ -229,6 +179,55 @@ public class PlumberAI : MonoBehaviour {
 		//GUI.Box (curInfo, "Next Jump Available in : " + (20 - (Time.time - lastTimeCheck)));
 	}
 
+	public void avoidMover()
+	{
+		if ((avoidingMover.transform.position - transform.position).x <= 0) {
+			avoidingMover = null;
+			return;
+		}
+		if (Mathf.Sign (avoidingMover.rigidbody2D.velocity.x) == -1) { //if it is moving toward us we wait until it is close then jump over it
+			float dist = (avoidingMover.transform.position - transform.position).magnitude;
+			if (dist < 4) {
+				pb.setUpInput (1.0F);
+				pb.setHorizInput (1.0F);
+				avoidingMover = null;
+			} else {
+				pb.setHorizInput (0.0F);
+			}
+		} else { //otherwise we stop
+			pb.setHorizInput (0.0F);
+		}
+		return;
+	}
+
+	public void avoidPopup()
+	{
+		if ((avoidingPopup.transform.position - transform.position).x <= 0) {
+			avoidingPopup = null;
+			return;
+		}
+		GameObject popper = avoidingPopup.GetComponentInChildren<PopupController> ().gameObject;
+		//SpriteRenderer sr = popper.GetComponent<SpriteRenderer>();
+		RaycastHit2D boxInFront = Physics2D.Linecast (transform.position, popper.transform.position, 1 << LayerMask.NameToLayer ("Ground"));
+		float dist = (avoidingPopup.transform.position - transform.position).magnitude;
+		if (!boxInFront) { //if it is moving toward us we wait until it is close then jump over it
+			if (dist > 5) {
+				pb.setHorizInput (1.0F);
+			} else { //we wait until the popper goes down and then jump over it
+				pb.setHorizInput (0.0F);
+			}
+		} else {
+			if (dist > 5) {
+				pb.setHorizInput (1.0F);
+			} else {
+				pb.setUpInput (1.0F);
+				pb.setHorizInput (0.0F);
+				avoidingPopup = null;
+			}
+		}
+		return;
+	}
+
 	public void considerSuperJump(GameObject go)
 	{
 		if (go == null)
@@ -296,11 +295,13 @@ public class PlumberAI : MonoBehaviour {
 		{
 			pb.setUpInput(1.0F);
 			pb.setHorizInput(1.0F);
+			takingPlatform = null;
 		}
 		if(r && i == 0 && rb2d.velocity.y > 0 && transform.position.y < 0) //if we reach the bottom, jump and leave
 		{
 			pb.setUpInput(1.0F);
 			pb.setHorizInput(1.0F);
+			takingPlatform = null;
 		}
 	}
 	

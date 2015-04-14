@@ -67,15 +67,15 @@ public class GameManager : MonoBehaviour {
 			{
 				foreach(GameObject go in enemies)
 				{
-					if(go.transform.parent.gameObject == sectionstop[0] ||
-					   go.transform.parent.gameObject == sectionsbot[0])
+					if(go.transform.root.gameObject == sectionstop[0] ||
+					   go.transform.root.gameObject == sectionsbot[0])
 					{
 						enemies.Remove (go);
 					}
 				}
 				foreach(GameObject go in movingPlatforms)
 				{
-					if(go.transform.parent.gameObject == sectionsmid[0])
+					if(go.transform.root.gameObject == sectionsmid[0])
 					{
 						movingPlatforms.Remove (go);
 					}
