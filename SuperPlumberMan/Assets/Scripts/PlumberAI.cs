@@ -30,6 +30,8 @@ public class PlumberAI : MonoBehaviour {
 
 	//for switching levels
 	private float lastTimeCheck = 0;
+	private bool superjumping = false;
+	private bool platforming = true;
 
 	// Use this for initialization
 	void Awake () 
@@ -53,7 +55,10 @@ public class PlumberAI : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
 	{
-
+		if (Input.GetKeyDown (KeyCode.Tab)) {
+			platforming = !platforming;
+			superjumping = !superjumping;
+		}
 	}
 	
 	void FixedUpdate()
@@ -62,10 +67,10 @@ public class PlumberAI : MonoBehaviour {
 		if (!running)
 			return;
 
-//		if (Time.time - lastTimeCheck > 20) {
-//			lastTimeCheck = Time.time;
-//			considerSuperJump();
-//		}
+		if (superjumping && Time.time - lastTimeCheck > 20) {
+			lastTimeCheck = Time.time;
+			considerSuperJump();
+		}
 
 		bool grounded = Physics2D.Linecast(transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer("Ground")) ||
 			Physics2D.Linecast(transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer("Ground")) ||
@@ -89,11 +94,13 @@ public class PlumberAI : MonoBehaviour {
 		}
 
 		//try moving between platforms
-		considerSuperJump(nearMovingPlatform());
+		if (platforming) {
+			considerSuperJump (nearMovingPlatform ());
 
-		if (takingPlatform != null) { //if we're switching lanes, jump to there and return
-			takePlatform(goingUp, takingPlatform);
-			return;
+			if (takingPlatform != null) { //if we're switching lanes, jump to there and return
+				takePlatform (goingUp, takingPlatform);
+				return;
+			}
 		}
 
 		//We test a few directions and use that to guide us to the ground
@@ -175,8 +182,10 @@ public class PlumberAI : MonoBehaviour {
 	{
 		if (!running)
 			return;
-		//Rect curInfo = new Rect (Screen.width / 2 - Screen.height / 10, 2 * Screen.height / 10, Screen.width / 5, Screen.height / 20);
-		//GUI.Box (curInfo, "Next Jump Available in : " + (20 - (Time.time - lastTimeCheck)));
+		if (platforming)
+			return;
+		Rect curInfo = new Rect (Screen.width / 2 - Screen.height / 10, 2 * Screen.height / 10, Screen.width / 5, Screen.height / 20);
+		GUI.Box (curInfo, "Next Jump Available in : " + (20 - (Time.time - lastTimeCheck)));
 	}
 
 	public void avoidMover()
@@ -237,7 +246,7 @@ public class PlumberAI : MonoBehaviour {
 		int dangersTop = 0;
 		int dangersBot = 0;
 		foreach (GameObject g in GameObject.FindGameObjectsWithTag("sectiontop")){
-			if (getType (g) == "Spikes" || getType (g) == "Spikes" || getType (g) == "Spikes"){
+			if (getType (g) == "Spikes" || getType (g) == "Mover" || getType (g) == "Popup"){
 				if(g.transform.position.x - transform.position.x < 100) //only care about nearby paths
 				{
 					dangersTop ++;
@@ -245,7 +254,7 @@ public class PlumberAI : MonoBehaviour {
 			}
 		}
 		foreach (GameObject g in GameObject.FindGameObjectsWithTag("sectionbot")){
-			if (getType (g) == "Spikes" || getType (g) == "Spikes" || getType (g) == "Spikes"){
+			if (getType (g) == "Spikes" || getType (g) == "Mover" || getType (g) == "Popup"){
 				if(g.transform.position.x - transform.position.x < 100) //only care about nearby paths
 				{
 					dangersBot ++;
@@ -260,6 +269,37 @@ public class PlumberAI : MonoBehaviour {
 		if (dangersBot < dangersTop && transform.position.y > 0 && rnd.Next(4) < 3 ) { //gives a weighting to staying top
 			takingPlatform = go;
 			goingUp = 0;
+		}
+	}
+
+	public void considerSuperJump()
+	{
+		//count the number of enemies and platforms in top row and bottom row in the coming area
+		//choose which setup seems safer
+		int dangersTop = 0;
+		int dangersBot = 0;
+		foreach (GameObject g in GameObject.FindGameObjectsWithTag("sectiontop")){
+			if (getType (g) == "Spikes" || getType (g) == "Mover" || getType (g) == "Popup"){
+				if(g.transform.position.x - transform.position.x < 100) //only care about nearby paths
+				{
+					dangersTop ++;
+				}
+			}
+		}
+		foreach (GameObject g in GameObject.FindGameObjectsWithTag("sectionbot")){
+			if (getType (g) == "Spikes" || getType (g) == "Mover" || getType (g) == "Popup"){
+				if(g.transform.position.x - transform.position.x < 100) //only care about nearby paths
+				{
+					dangersBot ++;
+				}
+			}
+		}
+		if (dangersTop <= dangersBot && transform.position.y < 0) {
+			switchBot();
+		}
+		System.Random rnd = new System.Random ();
+		if (dangersBot < dangersTop && transform.position.y > 0 && rnd.Next(4) < 3 ) { //gives a weighting to staying top
+			switchTop ();
 		}
 	}
 
@@ -288,10 +328,15 @@ public class PlumberAI : MonoBehaviour {
 	private void takePlatform(int i, GameObject go) //0 for down, 1 for up
 	{
 		//test whether we're on platform
-		RaycastHit2D r = (Physics2D.Linecast(transform.position, (Vector2)transform.position + new Vector2(0, -3), 1 << LayerMask.NameToLayer("Ground")));
-		if (!r)
+		RaycastHit2D r = (Physics2D.Linecast(transform.position, (Vector2)transform.position + new Vector2(0, -30), 1 << LayerMask.NameToLayer("Ground")));
+		if (go.GetComponent<MovePlatform>().lastPosition.y < go.transform.position.y && go.transform.position.y > 0) {
+			//we missed it, keep going
+			takingPlatform = null;
+			return;
+		}
+		if (!r || r && r.collider.gameObject.GetInstanceID() != go.GetInstanceID())
 			jumpTo (go);
-		if(r && i == 1 && rb2d.velocity.y < 0 && transform.position.y > 0) //if we reach the top, jump and leave
+		if(r && i == 1 && rb2d.velocity.y < 0 && transform.position.y > 40) //if we reach the top, jump and leave
 		{
 			pb.setUpInput(1.0F);
 			pb.setHorizInput(1.0F);
@@ -308,19 +353,37 @@ public class PlumberAI : MonoBehaviour {
 	private void jumpTo(GameObject go)
 	{
 		Vector3 dir = go.transform.position - transform.position;
-		bool grounded = Physics2D.Linecast(transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer("Ground")) ||
-			Physics2D.Linecast(transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer("Ground")) ||
-				Physics2D.Linecast(transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer("Ground"));
-		if (grounded && dir.y > 6) {
-			pb.setHorizInput(0.0F);
+		bool grounded = Physics2D.Linecast (transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer ("Ground")) ||
+			Physics2D.Linecast (transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer ("Ground")) ||
+			Physics2D.Linecast (transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer ("Ground"));
+		RaycastHit2D abovePlatform = Physics2D.Linecast (transform.position, transform.position + new Vector3 (0, -100, 0), 1 << LayerMask.NameToLayer ("Ground"));
+		if (grounded && dir.x > 8 && dir.y > 6) {
+			pb.setHorizInput (0.0F);
+		}
+		if (grounded && dir.x < 8 && dir.y > 6) {
+			pb.setHorizInput (-1.0F);
 		}
 		if (dir.y < 6 && dir.y > -2) {
-			pb.setUpInput(1.0F);
+			pb.setUpInput (1.0F);
 		}
 		if (!grounded && dir.x > 2.5)
 			pb.setHorizInput (1.0F);
 		if (!grounded && dir.x < 0)
 			pb.setHorizInput (-1.0F);
+		if (abovePlatform)
+		{
+		if (abovePlatform.collider.gameObject.GetInstanceID () == go.GetInstanceID ()) {
+			if ((transform.position - abovePlatform.collider.transform.position).y < 5F) {
+				pb.setUpInput (0.0F); //just ride the platform
+				pb.setHorizInput (0.0F);
+				return;
+			}
+			if (dir.x < 0)
+				pb.setHorizInput (-1.0F);
+			if (dir.x > 0)
+				pb.setHorizInput (1.0F);
+		}
+		}
 	}
 
 	private GameObject nearMovingPlatform()
@@ -347,7 +410,7 @@ public class PlumberAI : MonoBehaviour {
 				nearestPlatform = -1;
 			}
 		}
-		if (nearestPlatform != -1 && (gm.movingPlatforms [nearestPlatform].transform.position.x - transform.position.x) < 5) {
+		if (nearestPlatform != -1 && (gm.movingPlatforms [nearestPlatform].transform.position.x - transform.position.x) < 8) {
 			return gm.movingPlatforms[nearestPlatform];
 		}
 		return null;

@@ -29,7 +29,7 @@ public class PlumberBehavior : MonoBehaviour {
 	// AI related
 	private PlumberAI pai;
 	private bool moving = false;
-	private bool AIRunning;
+	private bool AIRunning = true;
 	private float lastInputTime = 0;
 
 	// Use this for initialization
@@ -44,10 +44,21 @@ public class PlumberBehavior : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
 	{
-		grounded = Physics2D.Linecast(transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer("Ground")) ||
-				Physics2D.Linecast(transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer("Ground")) ||
-				Physics2D.Linecast(transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer("Ground"));
-
+		RaycastHit2D onGround = Physics2D.Linecast (transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer ("Ground"));
+		if(!onGround)
+		{
+			onGround = Physics2D.Linecast(transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer("Ground"));
+		}
+		if(!onGround)
+		{
+			onGround = Physics2D.Linecast(transform.position, groundCheck1.position, 1 << LayerMask.NameToLayer("Ground"));
+		}
+		if (onGround) {
+			grounded = true;
+			mostRecentPlatform = onGround.collider.gameObject;
+		} else {
+			grounded = false;
+		}
 		if (rb2d.velocity.x == 0) {
 			if(moving == true)
 				moving = false;
@@ -66,15 +77,16 @@ public class PlumberBehavior : MonoBehaviour {
 
 		if (mec != null) {
 			respawn ();
-		}
-		else if (puc != null) {
+		} else if (puc != null) {
 			respawn ();
+		} else if (getType (c.gameObject) == "Spikes") {
+			respawn();
 		}
 
 	}
 
 	void FixedUpdate()
-	{	
+	{
 		if (lives <= 0) {
 			if (Input.GetKey (KeyCode.Space)) {
 				lives = 3;
@@ -194,7 +206,7 @@ public class PlumberBehavior : MonoBehaviour {
 	{
 		Rect curInfo = new Rect (Screen.width / 2 - Screen.height / 10, Screen.height / 10, Screen.width / 5, Screen.height / 20);
 		Rect lostOrWon = new Rect (Screen.width / 2 - Screen.width / 16, Screen.height / 5, Screen.width / 8, Screen.height / 20);
-		GUI.Box (curInfo, "Current Lives : " + lives);
+		GUI.Box (curInfo, "Current Lives : " + lives + "\nDistance Reached : " + (int)transform.position.x);
 		if (lives == 0)
 		{
 			GUI.Box (lostOrWon, "YOU HAVE LOST, SORRY");
@@ -224,6 +236,21 @@ public class PlumberBehavior : MonoBehaviour {
 		}
 
 		transform.position = mostRecentPlatform.transform.position + new Vector3 (0, 1, 0);
+	}
+
+	private string getType(GameObject hit)
+	{
+		if (!hit)
+			return " ";
+		if (hit.name == "Platform(Clone)")
+			return "Platform";
+		if (hit.name == "Spikes(Clone)")
+			return "Spikes";
+		if (hit.name == "MovingEnemy(Clone)")
+			return "Mover";
+		if (hit.name == "PopupEnemy(Clone)")
+			return "Popup";
+		return " ";
 	}
 }
 
