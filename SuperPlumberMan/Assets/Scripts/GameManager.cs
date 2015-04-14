@@ -56,39 +56,15 @@ public class GameManager : MonoBehaviour {
 	{
 		if(GameObject.FindGameObjectWithTag("Player").transform.position.x > checkpoint)
 			setUpNextArea = true;
+		if (Input.GetKey ("a"))
+			setUpNextArea = true;
 		if (setUpNextArea) 
 		{
 			//Debug.Log("HERE");
 			sectionstop = GameObject.FindGameObjectsWithTag("sectiontop");
 			sectionsbot = GameObject.FindGameObjectsWithTag("sectionbot");
 			//sectionsmid = GameObject.FindGameObjectsWithTag("sectionmid");
-			
-			if(sectionstop.Length > 2)
-			{
-				foreach(GameObject go in enemies.GetRange(0, enemies.Count)) //use a copy so we don't haev to worry about the changes we make
-				{
-					if(go.transform.root.gameObject.name == sectionstop[0].name ||
-					   go.transform.root.gameObject.name == sectionsbot[0].name)
-					{
-						enemies.Remove (go);
-					}
-					else{
-						break;
-					} //they are added in order, easy to do
-				}
-				//foreach(GameObject go in movingPlatforms)
-			//	{
-				//	if(go.transform.root.gameObject == sectionsmid[0])
-				//	{
-				//		movingPlatforms.Remove (go);
-				//	}
-				//
-				Destroy(sectionstop[0]);
-				Destroy (sectionsbot[0]);
-				//Destroy(sectionsmid[0]);
-				//Debug.Log (checkpoint + " inside");
-				
-			}
+
 			sectiontop++;
 			sectionbot++;
 			//sectionmid++;
@@ -96,11 +72,43 @@ public class GameManager : MonoBehaviour {
 			startbot = createSectionbot(startbot,sectionbot);
 			//startmid = createSectionmid(startmid,sectionmid);
 			sectionstop = GameObject.FindGameObjectsWithTag("sectiontop");
-			checkpoint = sectionstop[1].transform.GetChild(0).GetChild(0).position.x + ((sectionstop[1].transform.GetChild (29).GetChild(0).position.x - sectionstop[1].transform.GetChild(0).GetChild(0).position.x)* 0.5f);
+			if(sectionstop.Length < 3)
+				checkpoint = sectionstop[1].transform.GetChild(0).GetChild(0).position.x + ((sectionstop[1].transform.GetChild (29).GetChild(0).position.x - sectionstop[1].transform.GetChild(0).GetChild(0).position.x)* 0.5f);
+			else
+				checkpoint = sectionstop[2].transform.GetChild(0).GetChild(0).position.x + ((sectionstop[1].transform.GetChild (29).GetChild(0).position.x - sectionstop[1].transform.GetChild(0).GetChild(0).position.x)* 0.5f);
+
 			//Debug.Log(checkpoint + " " + sectionstop[1]);
 			//Debug.Log (sectionstop);
 			setUpNextArea = false;
+
+		}
+		if(sectionstop.Length > 3)
+		{
+			foreach(GameObject go in enemies.GetRange(0, enemies.Count)) //use a copy so we don't haev to worry about the changes we make
+			{
+				if(go.transform.root.gameObject.name == sectionstop[0].name ||
+				   go.transform.root.gameObject.name == sectionsbot[0].name)
+				{
+					enemies.Remove (go);
+				}
+				else{
+					break;
+				} //they are added in order, easy to do
+			}
+			//foreach(GameObject go in movingPlatforms)
+			//	{
+			//	if(go.transform.root.gameObject == sectionsmid[0])
+			//	{
+			//		movingPlatforms.Remove (go);
+			//	}
+			//}
 			
+			Destroy(sectionstop[0]);
+			Destroy (sectionsbot[0]);
+			if(sectionstop[0].name == "section: 1")
+				Destroy(sectionstop[0]);
+			//Destroy(sectionsmid[0]);
+			Debug.Log (checkpoint + " inside");
 			
 		}
 		//Debug.Log (checkpoint + " outside");
